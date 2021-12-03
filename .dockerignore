@@ -1,0 +1,7 @@
+*.sh
+.git
+Dockerfile
+__pycache__
+data
+my-deployment-package.zip
+virtualenv
