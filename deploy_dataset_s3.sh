@@ -1,6 +1,11 @@
 #!/bin/bash
 
-MY_BUCKET="s3://tcss562-term-project-group3"
+# Default to below if user doesn't provide an input
+if [ -z "$1" ]; then
+	MY_BUCKET="s3://tcss562-term-project-group3"
+else
+	MY_BUCKET="$1"
+fi
 
 cd `dirname $0`
 
