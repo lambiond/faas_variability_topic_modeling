@@ -34,7 +34,7 @@ zip -r ../../../../$MY_ZIP .
 popd
 # Package code
 zip -g $MY_ZIP app.py
-zip -g $MY_ZIP basic_code/topic_model.py
+zip -g $MY_ZIP cloud_code/topic_model.py
 #zip -g $MY_ZIP data/*
 
 # Deploy lambda function via s3 bucket
