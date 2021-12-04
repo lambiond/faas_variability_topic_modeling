@@ -6,23 +6,21 @@ Created on Thu Nov 18 15:06:52 2021
 @author: Danielle Lambion
 @author: Bob Schmitz
 """
-# We need to keep these ones
+
 import pandas as pd
+import pickle
 import gensim
 from gensim import models
 from gensim.test.utils import datapath
 from gensim.parsing.preprocessing import STOPWORDS
-from nltk.stem import WordNetLemmatizer, SnowballStemmer
-#from nltk.stem.porter import *
-#import numpy as np
-#np.random.seed(2018)
 import nltk
-# this will be imported in the docker image
+from nltk.stem import WordNetLemmatizer, SnowballStemmer
+# this will be included in the docker image
 #nltk.download('wordnet', download_dir='/tmp')
-import pickle
 
 # Local modules
 import s3
+
 
 def lambda_function_1(training_data='/tmp/news_train.csv',
                       bucket_name='tcss562-term-project-group3'):
@@ -31,7 +29,7 @@ def lambda_function_1(training_data='/tmp/news_train.csv',
     #     We will use the last 80% of the dataset for model training
     # =============================================================================
     s3.s3_download(training_data, bucket_name) 
-    df = pd.read_csv(training_data, error_bad_lines=False,
+    df = pd.read_csv(training_data, on_bad_lines='skip',
                      usecols=['publish_date', 'headline_text'])
     df['processed_text'] = df['headline_text'].apply(lambda x: process_data(x))
     dictionary = create_dict(df['processed_text'])
@@ -56,7 +54,7 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
     s3.s3_download(dictionary, bucket_name)
     corpus_tfidf = pickle.load(open(corpus_tfidf, 'rb'))
     dictionary = pickle.load(open(dictionary, 'rb'))
-    #DOESN'T WORK IN LAMBDA
+    # DOESN'T WORK IN LAMBDA
 #    lda_model = gensim.models.LdaMulticore(corpus_tfidf, num_topics=5,
 #                                           id2word=dictionary, passes=2,
 #                                           workers=2)
@@ -65,19 +63,17 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
     # =============================================================================
     #     SAVE lda_model TO S3 BUCKET
     # =============================================================================
-    model_file = "/tmp/lda.model"
-    model_save = [model_file,model_file+'.expElogbeta.npy',model_file+'.id2word',model_file+'.state']
-    lda_model.save(model_file)
-    for mfile in model_save:
+    model_files=['/tmp/lda.model',
+                '/tmp/lda.model.expElogbeta.npy',
+                '/tmp/lda.model.id2word',
+                '/tmp/lda.model.state']
+    lda_model.save(model_files[0])
+    for mfile in model_files:
         s3.s3_upload_file(mfile, bucket_name)
     return "function 2 done"
 
 
 def lambda_function_3(test_data='/tmp/news_test.csv',
-                      model_files=['/tmp/lda.model',
-                                  '/tmp/lda.model.expElogbeta.npy',
-                                  '/tmp/lda.model.id2word',
-                                  '/tmp/lda.model.state'],
                       dictionary_file='/tmp/dictionary.p',
                       bucket_name='tcss562-term-project-group3'):
     # =============================================================================
@@ -86,27 +82,26 @@ def lambda_function_3(test_data='/tmp/news_test.csv',
     # =============================================================================
     s3.s3_download(test_data, bucket_name) 
     s3.s3_download(dictionary_file, bucket_name) 
+    model_files=['/tmp/lda.model',
+                '/tmp/lda.model.expElogbeta.npy',
+                '/tmp/lda.model.id2word',
+                '/tmp/lda.model.state']
     for mfile in model_files:
         s3.s3_download(mfile, bucket_name)
     dictionary = pickle.load(open(dictionary_file, 'rb'))
     lda_model = models.LdaModel.load(model_files[0])
-    df_query = pd.read_csv(test_data, error_bad_lines=False,
+    df_query = pd.read_csv(test_data, on_bad_lines='skip',
                            usecols=['publish_date', 'headline_text'])
     df_query['processed_text'] = df_query['headline_text'].apply(lambda x: process_data(x))
     query_tfidf = create_tfidf_model(df_query['processed_text'], dictionary)
     df_query = get_topic(df_query, lda_model, query_tfidf)
-    #print(df_query['processed_text'])
-    #print(df_query['headline_text'])
-    #print(df_query['topic_number'])
-    #print(df_query['score'])
-    #print(df_query['topic'])
     # =============================================================================
     #     SAVE df_query AS A CSV TO S3 BUCKET
     #    (or return it to wherever user might want it)
     # =============================================================================
     results_file = '/tmp/results.csv'
     df_query.to_csv(results_file)
-    s3.s3_upload_file("/tmp/results.csv", bucket_name)
+    s3.s3_upload_file(results_file, bucket_name)
     return "function 3 done"
 
 
@@ -155,13 +150,13 @@ def get_topic(df, model, tfidf):
     topics_df = pd.DataFrame()
     for tfidf_val in tfidf:
         for index, score in sorted(model[tfidf_val], key=lambda tup: -1*tup[1]):
-            #print("\nScore: {}\t \nTopic: {}".format(score, model.print_topic(index, 10)))
             topics_df = topics_df.append(pd.Series([index,score,model.print_topic(index, 10)]),
                                          ignore_index=True)
     topics_df.columns = ['topic_number', 'score', 'topic']
     return df.join(topics_df)
 
-# create a dictionary that points to the functions to aid in Lambda execution
+
+# A dictionary that points to the functions to aid in Lambda execution
 run = {"lambda_function_1": lambda_function_1,
        "lambda_function_2": lambda_function_2,
        "lambda_function_3": lambda_function_3}

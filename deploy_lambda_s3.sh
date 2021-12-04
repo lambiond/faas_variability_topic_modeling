@@ -14,6 +14,9 @@ sudo apt update && sudo apt install -y python3.8-venv zip
 
 cd `dirname $0`
 
+# Check if awscli is installed
+./install_awscli.sh
+
 # If zip file exists, remove and replace with updated version
 if [ -f my-deployment-package.zip ]; then
 	rm my-deployment-package.zip
