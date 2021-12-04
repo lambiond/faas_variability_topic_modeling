@@ -8,9 +8,9 @@ def handler(event, context):
     # Collect data
     inspector = Inspector()
     inspector.inspectAll()
-
     # Add custom message and finish the function
-    inspector.addAttribute("message", event['function_name'])
+    #topic_model.run[event['function_name']]()
+    inspector.addAttribute("message", topic_model.run[event['function_name']]())
 
     inspector.inspectAllDeltas()
     return inspector.finish()
