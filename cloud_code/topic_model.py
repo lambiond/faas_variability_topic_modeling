@@ -31,7 +31,7 @@ def lambda_function_1(training_data='/tmp/news_train.csv',
     #     We will use the last 80% of the dataset for model training
     # =============================================================================
     s3.s3_download(training_data, bucket_name) 
-    df = pd.read_csv(training_data, error_bad_lines=False,
+    df = pd.read_csv(training_data, on_bad_lines='skip',
                      usecols=['publish_date', 'headline_text'])
     df['processed_text'] = df['headline_text'].apply(lambda x: process_data(x))
     dictionary = create_dict(df['processed_text'])
@@ -90,7 +90,7 @@ def lambda_function_3(test_data='/tmp/news_test.csv',
         s3.s3_download(mfile, bucket_name)
     dictionary = pickle.load(open(dictionary_file, 'rb'))
     lda_model = models.LdaModel.load(model_files[0])
-    df_query = pd.read_csv(test_data, error_bad_lines=False,
+    df_query = pd.read_csv(test_data, on_bad_lines='skip',
                            usecols=['publish_date', 'headline_text'])
     df_query['processed_text'] = df_query['headline_text'].apply(lambda x: process_data(x))
     query_tfidf = create_tfidf_model(df_query['processed_text'], dictionary)
