@@ -7,6 +7,7 @@ Created on Thu Nov 18 15:06:52 2021
 @author: Bob Schmitz
 """
 
+import platform
 import pandas as pd
 import pickle
 import gensim
@@ -21,14 +22,20 @@ from nltk.stem import WordNetLemmatizer, SnowballStemmer
 # Local modules
 import s3
 
+# Determine CPU arch for S3 buckets
+if platform.machine() == 'x86_64':
+    arch = 'x86'
+else:
+    arch = 'arm'
 
 def lambda_function_1(training_data='/tmp/news_train.csv',
-                      bucket_name='tcss562-term-project-group3'):
+                      bucket_name_in='tcss562-term-project-group3',
+                      bucket_name_out=f'tcss562-{arch}-function2'):
     # =============================================================================
     #     LOAD news_train.csv FROM S3 BUCKET
     #     We will use the last 80% of the dataset for model training
     # =============================================================================
-    s3.s3_download(training_data, bucket_name) 
+    s3.s3_download(training_data, bucket_name_in)
     df = pd.read_csv(training_data, on_bad_lines='skip',
                      usecols=['publish_date', 'headline_text'])
     df['processed_text'] = df['headline_text'].apply(lambda x: process_data(x))
@@ -38,20 +45,21 @@ def lambda_function_1(training_data='/tmp/news_train.csv',
     #     SAVE corpus_tfidf AND dictionary TO S3 BUCKET
     # =============================================================================
     pickle.dump(dictionary, open('/tmp/dictionary.p', 'wb'))
-    s3.s3_upload_file('/tmp/dictionary.p', bucket_name)
+    s3.s3_upload_file('/tmp/dictionary.p', bucket_name_out)
     pickle.dump(corpus_tfidf, open('/tmp/corpus_tfidf.p', 'wb'))
-    s3.s3_upload_file('/tmp/corpus_tfidf.p', bucket_name)
+    s3.s3_upload_file('/tmp/corpus_tfidf.p', bucket_name_out)
     return "function 1 done"
 
 
 def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
                       dictionary='/tmp/dictionary.p',
-                      bucket_name='tcss562-term-project-group3'):
+                      bucket_name_in=f'tcss562-{arch}-function2',
+                      bucket_name_out=f'tcss562-{arch}-function3'):
     # =============================================================================
     #     LOAD corpus_tfidf AND dictionary FROM S3 BUCKET
     # =============================================================================
-    s3.s3_download(corpus_tfidf, bucket_name)
-    s3.s3_download(dictionary, bucket_name)
+    s3.s3_download(corpus_tfidf, bucket_name_in)
+    s3.s3_download(dictionary, bucket_name_in)
     corpus_tfidf = pickle.load(open(corpus_tfidf, 'rb'))
     dictionary = pickle.load(open(dictionary, 'rb'))
     # DOESN'T WORK IN LAMBDA
@@ -69,26 +77,29 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
                 '/tmp/lda.model.state']
     lda_model.save(model_files[0])
     for mfile in model_files:
-        s3.s3_upload_file(mfile, bucket_name)
+        s3.s3_upload_file(mfile, bucket_name_out)
     return "function 2 done"
 
 
 def lambda_function_3(test_data='/tmp/news_test.csv',
-                      dictionary_file='/tmp/dictionary.p',
-                      bucket_name='tcss562-term-project-group3'):
+                      dictionary='/tmp/dictionary.p',
+                      bucket_name_in=['tcss562-term-project-group3',
+                                      f'tcss562-{arch}-function2',
+                                      f'tcss562-{arch}-function3'],
+                      bucket_name_out=f'tcss562-{arch}-results'):
     # =============================================================================
     #     LOAD lda_model AND dictionary AND news_test.csv FROM S3 BUCKET
     #     We will use the last 20% of the dataset to query the model
     # =============================================================================
-    s3.s3_download(test_data, bucket_name) 
-    s3.s3_download(dictionary_file, bucket_name) 
+    s3.s3_download(test_data, bucket_name_in[0])
+    s3.s3_download(dictionary, bucket_name_in[1])
     model_files=['/tmp/lda.model',
                 '/tmp/lda.model.expElogbeta.npy',
                 '/tmp/lda.model.id2word',
                 '/tmp/lda.model.state']
     for mfile in model_files:
-        s3.s3_download(mfile, bucket_name)
-    dictionary = pickle.load(open(dictionary_file, 'rb'))
+        s3.s3_download(mfile, bucket_name_in[2])
+    dictionary = pickle.load(open(dictionary, 'rb'))
     lda_model = models.LdaModel.load(model_files[0])
     df_query = pd.read_csv(test_data, on_bad_lines='skip',
                            usecols=['publish_date', 'headline_text'])
@@ -101,7 +112,7 @@ def lambda_function_3(test_data='/tmp/news_test.csv',
     # =============================================================================
     results_file = '/tmp/results.csv'
     df_query.to_csv(results_file)
-    s3.s3_upload_file(results_file, bucket_name)
+    s3.s3_upload_file(results_file, bucket_name_out)
     return "function 3 done"
 
 

@@ -12,6 +12,12 @@ cd `dirname $0`
 # Check if awscli is installed
 ./install_awscli.sh
 
-#aws s3 mb `basename $MY_BUCKET`
+# Create s3 bucket if it doesn't exist
+if ! aws s3api head-bucket --bucket 2> /dev/null; then
+	aws s3 mb `basename $MY_BUCKET` || exit $?
+fi
 aws s3 cp data/news_test.csv $MY_BUCKET
+if [ -f "data/news_train.csv.xz" ]; then
+	unxz data/news_train.csv.xz
+fi
 aws s3 cp data/news_train.csv $MY_BUCKET
