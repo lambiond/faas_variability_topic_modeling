@@ -86,7 +86,7 @@ def lambda_function_3(test_data='/tmp/news_test.csv',
                       bucket_name_in=['tcss562-term-project-group3',
                                       f'tcss562-{arch}-function2',
                                       f'tcss562-{arch}-function3'],
-                      bucket_name_out=f'tcss562-{arch}-results'):
+                      bucket_name_out=f'tcss562-{arch}-function1'):
     # =============================================================================
     #     LOAD lda_model AND dictionary AND news_test.csv FROM S3 BUCKET
     #     We will use the last 20% of the dataset to query the model
