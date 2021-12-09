@@ -2,9 +2,13 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 import os
+"""
+Utility module for S3 buckets
+
+@author: Bob Schmitz
+"""
 
 _s3_client = boto3.client('s3')
-_s3_resource = boto3.resource('s3')
 
 def s3_download(file_name, bucket, object_name=None):
     """Download a file to an S3 bucket
@@ -57,7 +61,7 @@ def s3_upload_object(buffer_object, bucket, object_name):
     :return: True if file was uploaded, else False
     """
     try:
-        _s3_resource.Object(bucket, object_name).put(Body=buffer_object)
+        _s3_client.put_object(Body=buffer_object, Bucket=bucket, Key=object_name)
     except ClientError as e:
         logging.error(e)
         return False
