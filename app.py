@@ -32,6 +32,6 @@ def handler(event, context):
     # format a filename
     dt = dt.strftime('%Y%m%d_%H%M%S')
     filename = f"{dt}-{state}-{event['function_name']}-{results['functionRegion']}.txt"
-    results['functionName'] = event['function_name']
-    s3.s3_upload_object(bytes(json.dumps(results).encode('UTF-8')), f'tcss562-{arch}-results', filename)
+#    results['functionName'] = event['function_name']
+#    s3.s3_upload_object(bytes(json.dumps(results).encode('UTF-8')), f'tcss562-{arch}-results', filename)
     return results
