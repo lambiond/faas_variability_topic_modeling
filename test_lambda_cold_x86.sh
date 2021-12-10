@@ -19,13 +19,13 @@ fi
 execute_lambda_function() {
 	json={"\"function_name\"":"\"lambda_function_$1\""}
 	# Set timeout to 10 minutes
-    mystart=`date "+%y%m%d%H%M"`
-	time output=$(aws lambda invoke --cli-read-timeout 600 --invocation-type RequestResponse --function-name x86-function$1 --region us-east-2 --cli-binary-format raw-in-base64-out --payload "$json" /dev/stdout | head -n 1 | head -c -2)
+	mystart=`date "+%y%m%d%H%M"`
+	time output=$(aws lambda invoke --cli-read-timeout 600 --invocation-type RequestResponse --function-name x86-function$1 --region us-east-2 --cli-binary-format raw-in-base64-out --payload "$json" /dev/stdout)
 	local ret=$?
-	if [ $ret -ne 0 ]; then
+	if [[ $ret -ne 0 || -z "$output" ]]; then
 		echo "ERROR: Stopping workflow, something bad happened!"
 	else
-		echo $output | jq | tee $mydir/$mystart-cold-x86-function$1.txt
+		echo $output | head -n 1 | head -c -2 | jq | tee $mydir/$mystart-cold-x86-function$1.txt
 	fi
 	return $ret
 }
