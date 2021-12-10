@@ -28,6 +28,12 @@ if platform.machine() == 'x86_64':
 else:
     arch = 'arm'
 
+# Model files
+model_files=['/tmp/lda.model',
+             '/tmp/lda.model.expElogbeta.npy',
+             '/tmp/lda.model.id2word',
+             '/tmp/lda.model.state']
+
 def lambda_function_1(training_data='/tmp/news_train.csv',
                       bucket_name_in='tcss562-term-project-group3',
                       bucket_name_out=f'tcss562-{arch}-function2'):
@@ -71,17 +77,13 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
     # =============================================================================
     #     SAVE lda_model TO S3 BUCKET
     # =============================================================================
-    model_files=['/tmp/lda.model',
-                '/tmp/lda.model.expElogbeta.npy',
-                '/tmp/lda.model.id2word',
-                '/tmp/lda.model.state']
     lda_model.save(model_files[0])
     for mfile in model_files:
         s3.s3_upload_file(mfile, bucket_name_out)
     return "function 2 done"
 
 
-def lambda_function_3(test_data='/tmp/news_test.csv',
+def lambda_function_3(test_data='/tmp/news_test_smallest.csv',
                       dictionary='/tmp/dictionary.p',
                       bucket_name_in=['tcss562-term-project-group3',
                                       f'tcss562-{arch}-function2',
@@ -93,10 +95,6 @@ def lambda_function_3(test_data='/tmp/news_test.csv',
     # =============================================================================
     s3.s3_download(test_data, bucket_name_in[0])
     s3.s3_download(dictionary, bucket_name_in[1])
-    model_files=['/tmp/lda.model',
-                '/tmp/lda.model.expElogbeta.npy',
-                '/tmp/lda.model.id2word',
-                '/tmp/lda.model.state']
     for mfile in model_files:
         s3.s3_download(mfile, bucket_name_in[2])
     dictionary = pickle.load(open(dictionary, 'rb'))
