@@ -83,7 +83,7 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
     return "function 2 done"
 
 
-def lambda_function_3(test_data='/tmp/news_test_smallest.csv',
+def lambda_function_3(test_data='/tmp/news_test_smaller.csv',
                       dictionary='/tmp/dictionary.p',
                       bucket_name_in=['tcss562-term-project-group3',
                                       f'tcss562-{arch}-function2',

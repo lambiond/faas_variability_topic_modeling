@@ -16,6 +16,7 @@ def handler(event, context):
     topic_model.run[event['function_name']]()
 
     inspector.inspectAllDeltas()
+    inspector.addAttribute("message", f"{event['function_name']} complete")
     results = inspector.finish()
     # If newcontainer is 0 then we have a warm start, otherwise cold start
     if results['newcontainer'] == 0:
