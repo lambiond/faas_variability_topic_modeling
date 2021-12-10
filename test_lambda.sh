@@ -20,9 +20,7 @@ execute_lambda_function() {
 	json={"\"function_name\"":"\"$1\""}
 	# Set timeout to 10 minutes
 	mystart=`date "+%y%m%d%H%M"`
-	output=$(aws lambda invoke --cli-read-timeout 900 --invocation-type RequestResponse
-		--function-name $2 --region $REGION --cli-binary-format raw-in-base64-out
-		--payload "$json" /dev/stdout)
+	output=$(aws lambda invoke --cli-read-timeout 900 --invocation-type RequestResponse --function-name $2 --region $REGION --cli-binary-format raw-in-base64-out --payload "$json" /dev/stdout)
 	local ret=$?
 	if [[ $ret -ne 0 || -z "$output" ]]; then
 		echo "ERROR: something bad happened!"

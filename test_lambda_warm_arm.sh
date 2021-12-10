@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd `dirname $0`
-. ./lambda_test.sh 'arm' 'us-east-2'
+source test_lambda.sh 'arm' 'us-east-2'
 
 for ((i=0; i<100; i++)); do
 	mydir="test/us-east-2/arm/warm/workflow$i/"
