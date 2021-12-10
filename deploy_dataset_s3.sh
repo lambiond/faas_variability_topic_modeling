@@ -1,8 +1,14 @@
 #!/bin/bash
 
+if [ -z "$2" ]; then
+	REGION="us-east-2"
+else
+	REGION="$2"
+fi
+
 # Default to below if user doesn't provide an input
 if [ -z "$1" ]; then
-	MY_BUCKET="s3://tcss562-term-project-group3"
+	MY_BUCKET="s3://tcss562-term-project-group3-$REGION"
 else
 	MY_BUCKET="$1"
 fi
@@ -13,11 +19,13 @@ cd `dirname $0`
 ./install_awscli.sh
 
 # Create s3 bucket if it doesn't exist
-if ! aws s3api head-bucket --bucket `basename $MY_BUCKET` 2> /dev/null; then
-	aws s3 mb $MY_BUCKET || exit $?
+if ! aws s3api head-bucket --bucket `basename $MY_BUCKET` --region $REGION 2> /dev/null; then
+	aws s3 mb $MY_BUCKET --region $REGION || exit $?
 fi
-aws s3 cp data/news_test.csv $MY_BUCKET
+aws s3 cp data/news_test.csv $MY_BUCKET --region $REGION 
+aws s3 cp data/news_test_smaller.csv $MY_BUCKET --region $REGION 
+aws s3 cp data/news_test_smallest.csv $MY_BUCKET --region $REGION 
 if [ -f "data/news_train.csv.xz" ]; then
 	unxz data/news_train.csv.xz
 fi
-aws s3 cp data/news_train.csv $MY_BUCKET
+aws s3 cp data/news_train.csv $MY_BUCKET --region $REGION 

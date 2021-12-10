@@ -44,4 +44,4 @@ aws ecr get-login-password --region $MY_REGION | docker login --username AWS --p
 docker push $MY_ECR/$MY_FUNCTION:latest
 
 # Deploy lambda
-aws lambda update-function-code --function-name $MY_FUNCTION --image-uri $MY_ECR/$MY_FUNCTION:latest --region $MY_REGION
+#aws lambda update-function-code --function-name $MY_FUNCTION --image-uri $MY_ECR/$MY_FUNCTION:latest --region $MY_REGION

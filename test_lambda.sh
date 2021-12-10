@@ -9,28 +9,23 @@ else
 	ARCH=$1
 fi
 
-# This is the default project lambda function name
-if [ "$ARCH" == 'x86_64' ]; then
-	MY_FUNCTION='tcss562_term_project'
+# Test different regions
+if [ -z "$2" ]; then
+	REGION='us-east-2'
 else
-	MY_FUNCTION='tcss562_term_project_arm'
+	REGION=$2
 fi
 
 execute_lambda_function() {
-	echo "Calling lambda_function_$1"
-	echo "--------------------------"
-	json={"\"function_name\"":"\"lambda_function_$1\""}
+	json={"\"function_name\"":"\"$1\""}
 	# Set timeout to 10 minutes
-	time output=$(aws lambda invoke --cli-read-timeout 600 --invocation-type RequestResponse --function-name tcss562_term_project --region us-east-2 --payload $json /dev/stdout | head -n 1 | head -c -2)
+	mystart=`date "+%y%m%d%H%M"`
+	output=$(aws lambda invoke --cli-read-timeout 900 --invocation-type RequestResponse --function-name $2 --region $REGION --cli-binary-format raw-in-base64-out --payload "$json" /dev/stdout)
 	local ret=$?
-	if [ $ret -ne 0 ]; then
-		echo "ERROR: Stopping workflow, something bad happened!"
+	if [[ $ret -ne 0 || -z "$output" ]]; then
+		echo "ERROR: something bad happened!"
 	else
-		echo $output | jq
+		echo $output | head -n 1 | head -c -2 | jq | tee $4/$mystart-$3.txt
 	fi
 	return $ret
 }
-
-execute_lambda_function 1 && \
-execute_lambda_function 2 && \
-execute_lambda_function 3
