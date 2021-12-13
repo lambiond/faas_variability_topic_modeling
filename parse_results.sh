@@ -1,18 +1,19 @@
 #!/bin/bash
 
 get_stats() {
+	starttime=$(ls *function1* | sed -r 's|^(.{6})(.{2})(.{2}).*|\1 \2:\3|')
 	runtime1=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function1*)
 	runtime2=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function2*)
 	runtime3=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function3*)
 	totalruntime=$(($runtime1+$runtime2+$runtime3))
-	echo "$1,$2,$3,$4,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
+	echo "$starttime,$1,$2,$3,$4,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
 }
 
 cd `dirname $0`
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 # initialize results.csv file
-echo 'region,arch,state,workflow,function 1 runtime (ms),function 2 runtime (ms),function 3 runtime (ms),total runtime (ms)' | tee $RESULTS
+echo 'start time,region,arch,state,workflow,function 1 runtime (ms),function 2 runtime (ms),function 3 runtime (ms),total runtime (ms)' | tee $RESULTS
 
 # All the results are stored in the test directory
 basedir='test'
