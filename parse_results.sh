@@ -1,23 +1,12 @@
 #!/bin/bash
 
 get_stats() {
-	startdate=$(ls *function1* | sed -r 's|^(.{6}).*|\1|')
-	starttime=$(ls *function1* | sed -r 's|^.{6}(.{2})(.{2}).*|\1\2|')
-	if [ $(echo $starttime | grep -o "[0-9][0-9]$") -ge 30 ]; then
-		starttime=$(($(echo $starttime | grep -o "^[1][0-9]")+1))
-		if [ $starttime -eq 24 ]; then
-			starttime=00
-		elif [ $starttime -lt 10 ]; then
-			starttime=0$starttime
-		fi
-    else
-		starttime=$(echo $starttime | grep -o "^[0-9]\{2\}")
-	fi
+	starttime=$(ls *function1* | sed -r 's|^(.{6})(.{2})(.{2}).*|\1 \2:\3|')
 	runtime1=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function1*)
 	runtime2=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function2*)
 	runtime3=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function3*)
 	totalruntime=$(($runtime1+$runtime2+$runtime3))
-	echo "$startdate $starttime,$1,$2,$3,$4,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
+	echo "$starttime,$1,$2,$3,$4,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
 }
 
 cd `dirname $0`
