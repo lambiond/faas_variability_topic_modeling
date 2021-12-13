@@ -1,7 +1,7 @@
 #!/bin/bash
 
 get_stats() {
-	starttime=$(ls *function1* | sed -r 's|^(.{6})(.{2})(.{2}).*|\1 \2:\3|')
+	starttime=$(ls *function1* | sed -r 's|^(.{2})(.{2})(.{2})(.{2})(.{2}).*|\1-\2-\3 \4:\5|')
 	runtime1=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function1*)
 	runtime2=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function2*)
 	runtime3=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function3*)
