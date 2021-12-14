@@ -1,4 +1,4 @@
-start time,region,arch,state,workflow,function 1 runtime (ms),function 2 runtime (ms),function 3 runtime (ms),total runtime (ms)
+region,start time,arch,state,function 1 runtime (ms),function 2 runtime (ms),function 3 runtime (ms),total runtime (ms)
 us-east-2,21-12-10 06:11,arm,cold,160789,209896,359898,730583
 us-east-2,21-12-10 06:23,arm,cold,161460,213487,358722,733669
 us-east-2,21-12-10 06:36,arm,cold,161615,208969,362022,732606
