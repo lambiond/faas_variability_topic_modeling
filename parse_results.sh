@@ -38,7 +38,7 @@ cd `dirname $0`
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 # initialize results.csv file
-echo 'start time,region,arch,state,workflow,function 1 runtime (ms),function 2 runtime (ms),function 3 runtime (ms),total runtime (ms)' | tee $RESULTS
+echo 'region,start time,arch,state,function 1 runtime (ms),function 2 runtime (ms),function 3 runtime (ms),total runtime (ms)' | tee $RESULTS
 
 # All the results are stored in the test directory
 basedir='test'
