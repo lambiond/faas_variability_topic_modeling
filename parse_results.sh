@@ -4,18 +4,34 @@ get_runtime() {
 	echo $(awk '/runtime/ {print substr($2, 1, length($2)-1)}' $1)
 }
 
+check_state() {
+	if [ "$1" == "warm" ]; then
+		grep -q "newcontainer.*1" $2
+	else
+		grep -q "newcontainer.*0" $2
+	fi
+	return $?
+}
+
 get_stats() {
 	logstarttime=$(ls *function1* | sed -r 's|^(.{2})(.{2})(.{2})(.{2})(.{2}).*|\1-\2-\3 \4:\5|')
-
+	let total++
 	runtime1=$(get_runtime *function1*)
 	runtime2=$(get_runtime *function2*)
 	runtime3=$(get_runtime *function3*)
-	if [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
+	# Check warm/cold state
+	if check_state $3 *function1* ||
+		check_state $3 *function2* ||
+		check_state $3 *function3*; then
+		let errcnt++
+	elif [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
+	# Check for empty runtimes
 		# one of the runtimes is empty
-		return 1
+		let errcnt++
+	else
+		totalruntime=$(($runtime1+$runtime2+$runtime3))
+		echo "$1,$logstarttime,$2,$3,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
 	fi
-	totalruntime=$(($runtime1+$runtime2+$runtime3))
-	echo "$1,$logstarttime,$2,$3,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
 }
 
 cd `dirname $0`
@@ -61,3 +77,4 @@ for region in $regions; do
 	done
 	popd > /dev/null
 done
+echo "Total workflows parsed: $total, Error in records: $errcnt ($((errcnt*100/total))%)"
