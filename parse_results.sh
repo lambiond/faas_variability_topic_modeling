@@ -1,12 +1,21 @@
 #!/bin/bash
 
+get_runtime() {
+	echo $(awk '/runtime/ {print substr($2, 1, length($2)-1)}' $1)
+}
+
 get_stats() {
-	starttime=$(ls *function1* | sed -r 's|^(.{2})(.{2})(.{2})(.{2})(.{2}).*|\1-\2-\3 \4:\5|')
-	runtime1=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function1*)
-	runtime2=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function2*)
-	runtime3=$(awk '/runtime/ {print substr($2, 1, length($2)-1)}' *function3*)
+	logstarttime=$(ls *function1* | sed -r 's|^(.{2})(.{2})(.{2})(.{2})(.{2}).*|\1-\2-\3 \4:\5|')
+
+	runtime1=$(get_runtime *function1*)
+	runtime2=$(get_runtime *function2*)
+	runtime3=$(get_runtime *function3*)
+	if [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
+		# one of the runtimes is empty
+		return 1
+	fi
 	totalruntime=$(($runtime1+$runtime2+$runtime3))
-	echo "$starttime,$1,$2,$3,$4,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
+	echo "$1,$logstarttime,$2,$3,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
 }
 
 cd `dirname $0`
@@ -23,7 +32,8 @@ cd $basedir
 states='cold warm'
 
 # Parse regions dynamically in case we want to include more
-regions=$(find -maxdepth 1 -type d ! -name '.' -exec basename {} \;)
+#regions=$(find -maxdepth 1 -type d ! -name '.' -exec basename {} \;)
+regions='us-east-2'
 for region in $regions; do
 	pushd $region > /dev/null
 
@@ -41,7 +51,7 @@ for region in $regions; do
 					for workflow in $workflows; do
 						pushd workflow$workflow > /dev/null
 							# Do work son!
-							get_stats $region $cpu $state $workflow
+							get_stats $region $cpu $state
 						popd > /dev/null
 					done
 
