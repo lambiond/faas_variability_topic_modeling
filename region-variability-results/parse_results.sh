@@ -1,4 +1,5 @@
 #!/bin/bash
+errcnt=0
 temp=`mktemp`
 cd `dirname $0`
 results='results.csv'
@@ -14,8 +15,13 @@ for f in *json; do
 		runtime3=$(awk -F"," "NR==$((i+2)) {print \$NF}" $temp)
 		region=$(awk -F"," "NR==$i {print \$1}" $temp)
 		starttime=$(date -d "$(awk -F"," "NR==$i {print \$2}" $temp)" "+%y-%m-%d %H:%M")
-		state=$(awk -F"," "NR==$i {print \$3}" $temp)
-		if [ "$state" == "0" ]; then
+		state1=$(awk -F"," "NR==$i {print \$3}" $temp)
+		state2=$(awk -F"," "NR==$((i+1)) {print \$3}" $temp)
+		state3=$(awk -F"," "NR==$((i+2)) {print \$3}" $temp)
+		if [[ $state1 -ne $state2 || $state1 -ne $state3 ]]; then
+			let errcnt++
+			continue
+		elif [ "$state1" == "0" ]; then
 			state="warm"
 		else
 			state="cold"
@@ -25,3 +31,4 @@ for f in *json; do
 	done
 done
 rm $temp
+echo $errcnt
