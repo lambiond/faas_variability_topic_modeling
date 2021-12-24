@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Allow users to set the arch
+if [ -z "$1" ]; then
+	ARCH=`uname -m`
+else
+	ARCH=$1
+fi
+
+# Allow users to set the region
 if [ -z "$2" ]; then
 	REGION="us-east-2"
 else
@@ -7,10 +15,10 @@ else
 fi
 
 # Default to below if user doesn't provide an input
-if [ -z "$1" ]; then
-	MY_BUCKET="s3://tcss562-term-project-group3-$REGION"
+if [ -z "$3" ]; then
+	MY_BUCKET="s3://$REGION-$ARCH-topic-modeling"
 else
-	MY_BUCKET="$1"
+	MY_BUCKET="$3"
 fi
 
 cd `dirname $0`
