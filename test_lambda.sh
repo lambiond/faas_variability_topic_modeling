@@ -3,18 +3,10 @@
 set -o pipefail
 
 # Allow users to set the arch to test
-if [ -z "$1" ]; then
-	ARCH=`uname -m`
-else
-	ARCH=$1
-fi
+[ -z "$1" ] && ARCH=`uname -m` || ARCH=$1
 
 # Test different regions
-if [ -z "$2" ]; then
-	REGION='us-east-2'
-else
-	REGION=$2
-fi
+[ -z "$2" ] && REGION='us-east-2' || REGION=$2
 
 # function_name = $1
 # lambda_function = $2
