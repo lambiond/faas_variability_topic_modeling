@@ -1,4 +1,0 @@
-{
-  "errorMessage": "RequestId: 9cae700d-4258-4774-bf40-bd680f65f81a Error: Runtime exited with error: signal: killed",
-  "errorType": "Runtime.ExitError"
-}

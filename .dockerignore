@@ -1,7 +1,11 @@
+*.md
 *.sh
 .git
 Dockerfile
 __pycache__
+basic_code
 data
 my-deployment-package.zip
+test
+utility
 virtualenv
