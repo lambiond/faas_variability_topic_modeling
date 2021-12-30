@@ -47,3 +47,6 @@ wget "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-
 chmod +x "$BUILDX_PATH"
 # Setup an alias "docker buildx install"->"docker build"
 docker buildx install
+
+# Install multi-arch dependencies
+sudo apt-get update && sudo apt-get install -y binfmt-support qemu-user-static
