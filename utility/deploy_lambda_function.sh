@@ -21,6 +21,7 @@ create_role() {
 			--policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
 	fi
 	ROLE=$(aws iam get-role --role-name "$FUNCTION-$REGION" | awk '/Arn/ {print substr($2, 2, length($2)-3)}')
+	sleep 3
 }
 
 # Allow users to set the arch

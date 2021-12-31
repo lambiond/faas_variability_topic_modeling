@@ -36,6 +36,12 @@ aws ecr create-repository --repository-name $IMAGE --image-scanning-configuratio
 
 # Build/deploy Docker image
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR
-docker buildx create --name mybuilder --driver-opt network=host --use
-docker buildx inspect --bootstrap
-docker buildx build -t $ECR/$IMAGE:$ARCH --platform linux/$ARCH --push .
+if ! docker buildx ls | grep -q '^mybuilder'; then
+	docker buildx create --name mybuilder --driver-opt network=host --use
+	docker buildx inspect --bootstrap
+fi
+if ! docker images $IMAGE:$ARCH | grep -q "^$IMAGE:$ARCH"; then
+	docker buildx build -t $IMAGE:$ARCH --platform linux/$ARCH --load .
+fi
+docker tag $IMAGE:$ARCH $ECR/$IMAGE:$ARCH
+docker push $ECR/$IMAGE:$ARCH
