@@ -34,7 +34,7 @@ model_files=['/tmp/lda.model',
              '/tmp/lda.model.state']
 
 def lambda_function_1(training_data='/tmp/news_train.csv',
-                      bucket_name_in=f'topic-modeling-{region}-{arch}',
+                      bucket_name_in=f'topic-modeling-{region}',
                       bucket_name_out=f'topic-modeling-{region}-{arch}'):
     # =============================================================================
     #     LOAD news_train.csv FROM S3 BUCKET
@@ -85,7 +85,7 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
 
 def lambda_function_3(test_data='/tmp/news_test_smaller.csv',
                       dictionary='/tmp/dictionary.p',
-                      bucket_name_in=[f'topic-modeling-{region}-{arch}',
+                      bucket_name_in=[f'topic-modeling-{region}',
                                       f'topic-modeling-{region}-{arch}'],
                       bucket_name_out=f'topic-modeling-{region}-{arch}'):
     # =============================================================================

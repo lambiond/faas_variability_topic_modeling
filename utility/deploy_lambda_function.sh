@@ -33,30 +33,40 @@ if [[ -z "$1" && -z "$ARCH" ]]; then
 			ARCH='arm64'
 			;;
 	esac
-elif [ -z "$ARCH" ]; then
+elif [ -n "$1" ]; then
 	ARCH="$1"
 fi
 
 # Allow users to set the region
 if [[ -z "$2" && -z "$REGION" ]]; then
 	REGION="us-east-2"
-elif [ -z "$REGION" ]; then
+elif [ -n "$2" ]; then
 	REGION="$2"
 fi
 
 # This is the default project Lambda function name
 if [[ -z "$3" && -z "$FUNCTION" ]]; then
 	FUNCTION="topic-modeling-$ARCH"
-elif [ -z "$FUNCTION" ]; then
+elif [ -n "$3" ]; then
 	FUNCTION="$3"
 fi
 
 # The ECR name
 if [[ -z "$4" && -z "$IMAGE" ]]; then
 	IMAGE="topic-modeling"
-elif [ -z "$IMAGE" ]; then
+	if [ $ARCH == 'x86_64' ]; then
+		IMAGE="$IMAGE:amd64"
+	else
+		IMAGE="$IMAGE:$ARCH"
+	fi
+elif [ -n "$4" ]; then
 	IMAGE="$4"
 fi
+
+# timeout 15 minutes
+timeout=900
+# 2048mb (2gb)
+memorysize=2048
 
 # My container registry portal
 id=`aws sts get-caller-identity | sed -n 's|.*Account.*"\([0-9]\+\)".*|\1|p'`
@@ -72,9 +82,9 @@ create_role
 aws lambda create-function \
 	--function-name $FUNCTION \
 	--role "$ROLE" \
-	--code ImageUri=$ECR/$IMAGE:latest \
-	--timeout 900 \
-	--memory-size 2048 \
+	--code ImageUri=$ECR/$IMAGE \
+	--timeout $timeout \
+	--memory-size $memorysize \
 	--package-type Image \
 	--architectures $ARCH \
 	--region $REGION
