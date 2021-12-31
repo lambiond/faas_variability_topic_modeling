@@ -21,5 +21,5 @@ for region in ${REGIONS[*]}; do
 	./deploy_lambda_function.sh arm64 $region
 	# Create S3 buckets for both arm64 and x86_64
 	./make_s3_bucket.sh x86_64 $region
-	./make_s3_bucket.sh arm64 $region
+	./make_s3_bucket.sh aarch64 $region
 done
