@@ -16,6 +16,7 @@ from gensim.test.utils import datapath
 from gensim.parsing.preprocessing import STOPWORDS
 import nltk
 from nltk.stem import WordNetLemmatizer, SnowballStemmer
+import os
 # this will be included in the docker image
 #nltk.download('wordnet', download_dir='/tmp')
 
@@ -23,10 +24,8 @@ from nltk.stem import WordNetLemmatizer, SnowballStemmer
 import s3
 
 # Determine CPU arch for S3 buckets
-if platform.machine() == 'x86_64':
-    arch = 'x86'
-else:
-    arch = 'arm'
+arch=platform.machine().replace('_', '-')
+region = os.environ.get('AWS_REGION', 'us-east-2')
 
 # Model files
 model_files=['/tmp/lda.model',
@@ -35,13 +34,14 @@ model_files=['/tmp/lda.model',
              '/tmp/lda.model.state']
 
 def lambda_function_1(training_data='/tmp/news_train.csv',
-                      bucket_name_in='tcss562-term-project-group3',
-                      bucket_name_out=f'tcss562-{arch}-function2'):
+                      bucket_name_in=f'topic-modeling-{region}',
+                      bucket_name_out=f'topic-modeling-{region}-{arch}'):
     # =============================================================================
     #     LOAD news_train.csv FROM S3 BUCKET
     #     We will use the last 80% of the dataset for model training
     # =============================================================================
-    s3.s3_download(training_data, bucket_name_in)
+    if not os.path.exists(training_data):
+        s3.s3_download(training_data, bucket_name_in)
     df = pd.read_csv(training_data, on_bad_lines='skip',
                      usecols=['publish_date', 'headline_text'])
     df['processed_text'] = df['headline_text'].apply(lambda x: process_data(x))
@@ -54,18 +54,19 @@ def lambda_function_1(training_data='/tmp/news_train.csv',
     s3.s3_upload_file('/tmp/dictionary.p', bucket_name_out)
     pickle.dump(corpus_tfidf, open('/tmp/corpus_tfidf.p', 'wb'))
     s3.s3_upload_file('/tmp/corpus_tfidf.p', bucket_name_out)
-    return "function 1 done"
 
 
 def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
                       dictionary='/tmp/dictionary.p',
-                      bucket_name_in=f'tcss562-{arch}-function2',
-                      bucket_name_out=f'tcss562-{arch}-function3'):
+                      bucket_name_in=f'topic-modeling-{region}-{arch}',
+                      bucket_name_out=f'topic-modeling-{region}-{arch}'):
     # =============================================================================
     #     LOAD corpus_tfidf AND dictionary FROM S3 BUCKET
     # =============================================================================
-    s3.s3_download(corpus_tfidf, bucket_name_in)
-    s3.s3_download(dictionary, bucket_name_in)
+    if not os.path.exists(corpus_tfidf):
+        s3.s3_download(corpus_tfidf, bucket_name_in)
+    if not os.path.exists(dictionary):
+        s3.s3_download(dictionary, bucket_name_in)
     corpus_tfidf = pickle.load(open(corpus_tfidf, 'rb'))
     dictionary = pickle.load(open(dictionary, 'rb'))
     # DOESN'T WORK IN LAMBDA
@@ -80,23 +81,24 @@ def lambda_function_2(corpus_tfidf='/tmp/corpus_tfidf.p',
     lda_model.save(model_files[0])
     for mfile in model_files:
         s3.s3_upload_file(mfile, bucket_name_out)
-    return "function 2 done"
 
 
 def lambda_function_3(test_data='/tmp/news_test_smaller.csv',
                       dictionary='/tmp/dictionary.p',
-                      bucket_name_in=['tcss562-term-project-group3',
-                                      f'tcss562-{arch}-function2',
-                                      f'tcss562-{arch}-function3'],
-                      bucket_name_out=f'tcss562-{arch}-function1'):
+                      bucket_name_in=[f'topic-modeling-{region}',
+                                      f'topic-modeling-{region}-{arch}'],
+                      bucket_name_out=f'topic-modeling-{region}-{arch}'):
     # =============================================================================
     #     LOAD lda_model AND dictionary AND news_test.csv FROM S3 BUCKET
     #     We will use the last 20% of the dataset to query the model
     # =============================================================================
-    s3.s3_download(test_data, bucket_name_in[0])
-    s3.s3_download(dictionary, bucket_name_in[1])
+    if not os.path.exists(test_data):
+        s3.s3_download(test_data, bucket_name_in[0])
+    if not os.path.exists(dictionary):
+        s3.s3_download(dictionary, bucket_name_in[1])
     for mfile in model_files:
-        s3.s3_download(mfile, bucket_name_in[2])
+        if not os.path.exists(mfile):
+            s3.s3_download(mfile, bucket_name_in[1])
     dictionary = pickle.load(open(dictionary, 'rb'))
     lda_model = models.LdaModel.load(model_files[0])
     df_query = pd.read_csv(test_data, on_bad_lines='skip',
@@ -111,7 +113,6 @@ def lambda_function_3(test_data='/tmp/news_test_smaller.csv',
     results_file = '/tmp/results.csv'
     df_query.to_csv(results_file)
     s3.s3_upload_file(results_file, bucket_name_out)
-    return "function 3 done"
 
 
 # =============================================================================

@@ -1,16 +1,19 @@
 # Define function directory
 ARG FUNCTION_DIR="/function"
 
-FROM python:slim-bullseye as build-image
+# There is an issue in bullseye and qemu which prevents compilation
+#FROM python:slim-bullseye as build-image
+FROM python:slim-buster as build-image
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Install aws-lambda-cpp build dependencies
 RUN apt-get update && \
-  apt-get install -y \
-  g++ \
-  make \
-  cmake \
-  unzip \
-  libcurl4-openssl-dev
+	apt-get install -y \
+	g++ \
+	make \
+	cmake \
+	unzip \
+	libcurl4-openssl-dev
 
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
@@ -27,7 +30,8 @@ COPY app.py ${FUNCTION_DIR}
 COPY cloud_code ${FUNCTION_DIR}
 
 # Multi-stage build: grab a fresh copy of the base image
-FROM python:slim-bullseye
+#FROM python:slim-bullseye
+FROM python:slim-buster
 
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
