@@ -4,17 +4,22 @@ cd `dirname $0`/..
 
 # Allow users to set the arch
 if [[ -z "$1" && -z "$ARCH" ]]; then
-	case $(uname -m) in
-		x86_64)
-			ARCH='amd64'
-			;;
-		aarch64)
-			ARCH='arm64'
-			;;
-	esac
+	ARCH=$(uname -m)
 elif [ -n "$1" ]; then
 	ARCH=$1
 fi
+case $ARCH in
+	x86_64|amd64)
+		ARCH='amd64'
+		;;
+	aarch64|arm64)
+		ARCH='arm64'
+		;;
+	*)
+		echo "ERROR: $ARCH not supported"
+		exit 1
+		;;
+esac
 
 # Allow users to set the region
 if [[ -z "$2" && -z "$REGION" ]]; then

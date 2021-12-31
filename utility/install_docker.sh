@@ -41,12 +41,14 @@ if ! which docker > /dev/null; then
 	sudo usermod -aG docker $USER
 fi
 
-# Install biuldx
-mkdir -p "$(dirname $BUILDX_PATH)"
-wget "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-$ARCH" -O "$BUILDX_PATH"
-chmod +x "$BUILDX_PATH"
-# Setup an alias "docker buildx install"->"docker build"
-docker buildx install
+# Install buildx
+if [ ! -f "$BUILDX_PATH" ]; then
+	mkdir -p "$(dirname $BUILDX_PATH)"
+	wget "https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.linux-$ARCH" -O "$BUILDX_PATH"
+	chmod +x "$BUILDX_PATH"
+fi
 
 # Install multi-arch dependencies
-sudo apt-get update && sudo apt-get install -y binfmt-support qemu-user-static
+if ! dpkg -s binfmt-support &> /dev/null || ! dpkg -s qemu-user-static &> /dev/null; then
+	sudo apt-get update && sudo apt-get install -y binfmt-support qemu-user-static
+fi

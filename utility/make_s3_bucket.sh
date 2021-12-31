@@ -6,7 +6,18 @@ if [[ -z "$1" && -z "$ARCH" ]]; then
 elif [ -n "$1" ]; then
 	ARCH=$1
 fi
-ARCH=$(echo $ARCH | tr '_' '-')
+case $ARCH in
+	x86_64|amd64)
+		ARCH='x86-64'
+		;;
+	aarch64|arm64)
+		ARCH='aarch64'
+		;;
+	*)
+		echo "ERROR: $ARCH not supported"
+		exit 1
+		;;
+esac
 
 # Allow users to set the region
 if [[ -z "$2" && -z "$REGION" ]]; then
