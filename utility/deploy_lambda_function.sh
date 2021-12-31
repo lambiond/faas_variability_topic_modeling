@@ -53,7 +53,7 @@ fi
 
 # The ECR name
 if [[ -z "$4" && -z "$IMAGE" ]]; then
-	IMAGE="topic-modeling-$(uname -m)"
+	IMAGE="topic-modeling"
 elif [ -z "$IMAGE" ]; then
 	IMAGE="$4"
 fi
