@@ -39,4 +39,3 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 docker buildx create --name mybuilder --driver-opt network=host --use
 docker buildx inspect --bootstrap
 docker buildx build -t $ECR/$IMAGE:$ARCH --platform linux/$ARCH --push .
-docker buildx rm mybuilder
