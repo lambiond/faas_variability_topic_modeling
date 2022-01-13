@@ -10,6 +10,22 @@ Utility module for S3 buckets
 
 _s3_client = boto3.client('s3')
 
+def s3_delete(bucket, object_name):
+    """Download a file to an S3 bucket
+
+    :param bucket: Bucket to download to
+    :param object_name: S3 object name.
+    :return: True if file is deleted, else False
+    """
+    # Delete the file
+    try:
+        response = _s3_client.delete_object(bucket, object_name)
+    except ClientError as e:
+        logging.error(e)
+        return False
+    return True
+
+
 def s3_download(file_name, bucket, object_name=None):
     """Download a file to an S3 bucket
 
@@ -22,7 +38,7 @@ def s3_download(file_name, bucket, object_name=None):
     if object_name is None:
         object_name = os.path.basename(file_name)
 
-    # Upload the file
+    # Download the file
     try:
         response = _s3_client.download_file(bucket, object_name, file_name)
     except ClientError as e:

@@ -14,7 +14,7 @@ check_state() {
 }
 
 get_stats() {
-	logstarttime=$(ls *function1* | sed -r 's|^(.{2})(.{2})(.{2})(.{2})(.{2}).*|\1-\2-\3 \4:\5|')
+	logstarttime=$(ls *function1* | sed -r 's|^(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).*|\1-\2-\3 \4:\5:\6|')
 	let total++
 	runtime1=$(get_runtime *function1*)
 	runtime2=$(get_runtime *function2*)

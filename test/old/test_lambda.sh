@@ -39,7 +39,7 @@ execute_lambda_function() {
 			exit 1
 		fi
 	else
-		mystart=$(date -d "$mystart" "+%y%m%d%H%M")
+		mystart=$(date -d "$mystart" "+%Y%m%d%H%M%S")
 		echo $output | awk -F'}' '{print $1"}"}' | jq | tee $4/$mystart-$3.txt
 	fi
 	return $ret
