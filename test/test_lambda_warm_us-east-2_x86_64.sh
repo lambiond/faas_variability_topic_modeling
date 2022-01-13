@@ -13,7 +13,7 @@ while true; do
 	mydir="$REGION/$ARCH/warm/workflow$i/"
 	mkdir -p $mydir
 	let i++
-	execute_lambda_function "lambda_function_1" "topic-modeling-$ARCH" "warm-$ARCH-function1" "$mydir" && \
-	execute_lambda_function "lambda_function_2" "topic-modeling-$ARCH" "warm-$ARCH-function2" "$mydir" && \
-	execute_lambda_function "lambda_function_3" "topic-modeling-$ARCH" "warm-$ARCH-function3" "$mydir"
+	execute_lambda_function "lambda_function_1" "topic-modeling-$ARCH" "warm-$ARCH-function1" "$mydir" 5 && \
+	execute_lambda_function "lambda_function_2" "topic-modeling-$ARCH" "warm-$ARCH-function2" "$mydir" 5 && \
+	execute_lambda_function "lambda_function_3" "topic-modeling-$ARCH" "warm-$ARCH-function3" "$mydir" 5
 done
