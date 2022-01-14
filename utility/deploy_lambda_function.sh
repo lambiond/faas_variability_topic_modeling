@@ -24,6 +24,33 @@ create_role() {
 	sleep 3
 }
 
+create_lambda_function() {
+	local timeout=$1
+	local memorysize=$2
+	# My container registry portal
+	local id=`aws sts get-caller-identity | sed -n 's|.*Account.*"\([0-9]\+\)".*|\1|p'`
+	local ecr=$id.dkr.ecr.$REGION.amazonaws.com
+	local image="topic-modeling"
+	case $ARCH in
+		x86_64)
+			image="$image:amd64"
+			;;
+		*)
+			image="$image:$ARCH"
+			;;
+	esac
+
+	aws lambda create-function \
+		--function-name $FUNCTION \
+		--role "$ROLE" \
+		--code ImageUri=$ecr/$image \
+		--timeout $timeout \
+		--memory-size $memorysize \
+		--package-type Image \
+		--architectures $ARCH \
+		--region $REGION
+}
+
 # Allow users to set the arch
 if [[ -z "$1" && -z "$ARCH" ]]; then
 	ARCH=$(uname -m)
@@ -57,40 +84,10 @@ elif [ -n "$3" ]; then
 	FUNCTION="$3"
 fi
 
-# The ECR name
-if [[ -z "$4" && -z "$IMAGE" ]]; then
-	IMAGE="topic-modeling"
-	if [ $ARCH == 'x86_64' ]; then
-		IMAGE="$IMAGE:amd64"
-	else
-		IMAGE="$IMAGE:$ARCH"
-	fi
-elif [ -n "$4" ]; then
-	IMAGE="$4"
-fi
-
-# timeout 15 minutes
-timeout=900
-# 2048mb (2gb)
-memorysize=2048
-
-# My container registry portal
-id=`aws sts get-caller-identity | sed -n 's|.*Account.*"\([0-9]\+\)".*|\1|p'`
-ECR=$id.dkr.ecr.$REGION.amazonaws.com
-unset id
-
 # Create Lambda function only if it does not exist
 aws lambda get-function --function-name $FUNCTION --region $REGION &> /dev/null \
 	&& exit
 
 # Deploy Lambda
 create_role
-aws lambda create-function \
-	--function-name $FUNCTION \
-	--role "$ROLE" \
-	--code ImageUri=$ECR/$IMAGE \
-	--timeout $timeout \
-	--memory-size $memorysize \
-	--package-type Image \
-	--architectures $ARCH \
-	--region $REGION
+create_lambda_function 900 2048
