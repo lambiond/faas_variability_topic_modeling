@@ -27,10 +27,10 @@ max_runs = 0
 # Make a call using AWS CLI
 #
 def callAWS(function, payload, callAsync):
-    cmd = ['aws', 'lambda', 'invoke', '--invocation-type', 'RequestResponse', '--cli-read-timeout', 
+    cmd = ['/usr/local/bin/aws', 'lambda', 'invoke', '--invocation-type', 'RequestResponse', '--cli-read-timeout',
            '450', '--function-name', str(function['endpoint']), '--payload', payload, '/dev/stdout']
     if (callAsync):
-        cmd = ['aws', 'lambda', 'invoke', '--invocation-type', 'Event', '--cli-read-timeout', 
+        cmd = ['/usr/local/bin/aws', 'lambda', 'invoke', '--invocation-type', 'Event', '--cli-read-timeout',
                '450', '--function-name', str(function['endpoint']), '--payload', '"' + payload + '"', '/dev/stdout']
     proc = subprocess.Popen( cmd, bufsize=-1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     o, e = proc.communicate()

@@ -1,0 +1,55 @@
+2022-01-13 19:49:01.749004 - Python Partest Version 0.5
+Setting up test: runsperthread=3 threads=1 totalruns=3 payload=[{'function_name': 'lambda_function_1'} {'function_name': 'lambda_function_2'} {'function_name': 'lambda_function_3'}]
+
+Raw results of each run:
+1_run_id,2_thread_id,containerID,contextSwitches,contextSwitchesDelta,cpuIdle,cpuIdleDelta,cpuIowait,cpuIowaitDelta,cpuIrq,cpuIrqDelta,cpuKrn,cpuKrnDelta,cpuModel,cpuNice,cpuNiceDelta,cpuSoftIrq,cpuSoftIrqDelta,cpuType,cpuUsr,cpuUsrDelta,endTime,frameworkRuntime,frameworkRuntimeDeltas,freeMemory,functionMemory,functionName,functionRegion,lambdaName,latency,newcontainer,pageFaults,pageFaultsDelta,payload,roundTripTime,runtime,runtimeOverlap,startTime,totalMemory,userRuntime,uuid,vmID,vmcpusteal,vmcpustealDelta,vmuptime
+0,0,2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,93498,25357,1701080,16028,29,2,0,0,447,78,,0,0,12,7, - Model ,73307,15932,1642102768652,11,5,2422144,2048,lambda_function_1,us-east-2,topic-modeling-arm64,682.54,0,807532,414219,{"function_name": "lambda_function_1"},160991.54,160309,0,1642102608343,3235752,160293,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733
+1,0,2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,120039,2198,1717231,20778,31,0,0,0,526,27,,0,0,19,0, - Model ,89249,20713,1642102976950,12,4,2361620,2048,lambda_function_2,us-east-2,topic-modeling-arm64,663.9,0,1224890,141732,{"function_name": "lambda_function_2"},208289.9,207626,0,1642102769324,3235752,207610,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733
+2,0,2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,124960,8324,1738135,36372,31,1,0,0,560,5,,0,0,19,0, - Model ,109965,36337,1642103341277,12,4,2358604,2048,lambda_function_3,us-east-2,topic-modeling-arm64,708.77,0,1373925,19051,{"function_name": "lambda_function_3"},364334.77,363626,0,1642102977651,3235752,363610,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733
+Successful Runs: 3
+
+Category containerID:
+containerID,uses,avg_contextSwitches,avg_contextSwitchesDelta,avg_cpuIdleDelta,avg_cpuIowaitDelta,avg_cpuIrqDelta,avg_cpuKrnDelta,avg_cpuNiceDelta,avg_cpuSoftIrqDelta,cpuType_list,avg_cpuUsrDelta,avg_endTime,avg_frameworkRuntime,avg_frameworkRuntimeDeltas,avg_freeMemory,avg_functionMemory,avg_latency,sum_newcontainer,avg_pageFaults,avg_pageFaultsDelta,avg_roundTripTime,avg_runtime,avg_runtimeOverlap,avg_startTime,avg_tenants[vmID],avg_totalMemory,avg_userRuntime,vmID_list,avg_vmcpusteal,avg_vmcpustealDelta,avg_vmuptime
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,3,112832.33,11959.67,24392.67,1.00,0.00,36.67,0.00,2.33,[' - Model '],24327.33,1642103028959.67,11.67,4.33,2380789.33,2048.00,685.07,0,1135449.00,191667.33,244538.74,243853.67,0.00,1642102785106.00,3.00,3235752.00,243837.67,[''],0.00,0.00,1642093733.00
+Total number of unique containerIDs: 1
+
+Category cpuType:
+cpuType,uses,containerID_list,avg_contextSwitches,avg_contextSwitchesDelta,avg_cpuIdleDelta,avg_cpuIowaitDelta,avg_cpuIrqDelta,avg_cpuKrnDelta,avg_cpuNiceDelta,avg_cpuSoftIrqDelta,avg_cpuUsrDelta,avg_endTime,avg_frameworkRuntime,avg_frameworkRuntimeDeltas,avg_freeMemory,avg_functionMemory,avg_latency,sum_newcontainer,avg_pageFaults,avg_pageFaultsDelta,avg_roundTripTime,avg_runtime,avg_runtimeOverlap,avg_startTime,avg_tenants[vmID],avg_totalMemory,avg_userRuntime,vmID_list,avg_vmcpusteal,avg_vmcpustealDelta,avg_vmuptime
+ - Model ,3,['2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38'],112832.33,11959.67,24392.67,1.00,0.00,36.67,0.00,2.33,24327.33,1642103028959.67,11.67,4.33,2380789.33,2048.00,685.07,0,1135449.00,191667.33,244538.74,243853.67,0.00,1642102785106.00,3.00,3235752.00,243837.67,[''],0.00,0.00,1642093733.00
+Total number of unique cpuTypes: 1
+
+--- Runs of Group cpuType ---
+
+Category cpuType with  - Model :
+containerID,contextSwitches,contextSwitchesDelta,cpuIdleDelta,cpuIowaitDelta,cpuIrqDelta,cpuKrnDelta,cpuNiceDelta,cpuSoftIrqDelta,cpuUsrDelta,endTime,frameworkRuntime,frameworkRuntimeDeltas,freeMemory,functionMemory,functionName,functionRegion,lambdaName,latency,newcontainer,pageFaults,pageFaultsDelta,payload,roundTripTime,runtime,runtimeOverlap,startTime,tenants[vmID],totalMemory,userRuntime,uuid,vmID,vmcpusteal,vmcpustealDelta,vmuptime,zTenancy[vmID]
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,93498,25357,16028,2,0,78,0,7,15932,1642102768652,11,5,2422144,2048,lambda_function_1,us-east-2,topic-modeling-arm64,682.54,0,807532,414219,{"function_name": "lambda_function_1"},160991.54,160309,0,1642102608343,3,3235752,160293,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733, - Model  - 3
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,120039,2198,20778,0,0,27,0,0,20713,1642102976950,12,4,2361620,2048,lambda_function_2,us-east-2,topic-modeling-arm64,663.9,0,1224890,141732,{"function_name": "lambda_function_2"},208289.9,207626,0,1642102769324,3,3235752,207610,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733, - Model  - 3
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,124960,8324,36372,1,0,5,0,0,36337,1642103341277,12,4,2358604,2048,lambda_function_3,us-east-2,topic-modeling-arm64,708.77,0,1373925,19051,{"function_name": "lambda_function_3"},364334.77,363626,0,1642102977651,3,3235752,363610,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733, - Model  - 3
+
+Category newcontainer:
+newcontainer,uses,containerID_list,avg_contextSwitches,avg_contextSwitchesDelta,avg_cpuIdleDelta,avg_cpuIowaitDelta,avg_cpuIrqDelta,avg_cpuKrnDelta,avg_cpuNiceDelta,avg_cpuSoftIrqDelta,cpuType_list,avg_cpuUsrDelta,avg_endTime,avg_frameworkRuntime,avg_frameworkRuntimeDeltas,avg_freeMemory,avg_functionMemory,avg_latency,sum_newcontainer,avg_pageFaults,avg_pageFaultsDelta,avg_roundTripTime,avg_runtime,avg_runtimeOverlap,avg_startTime,avg_tenants[vmID],avg_totalMemory,avg_userRuntime,vmID_list,avg_vmcpusteal,avg_vmcpustealDelta,avg_vmuptime
+0,3,['2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38'],112832.33,11959.67,24392.67,1.00,0.00,36.67,0.00,2.33,[' - Model '],24327.33,1642103028959.67,11.67,4.33,2380789.33,2048.00,685.07,0,1135449.00,191667.33,244538.74,243853.67,0.00,1642102785106.00,3.00,3235752.00,243837.67,[''],0.00,0.00,1642093733.00
+Total number of unique newcontainers: 1
+
+Category vmID:
+vmID,uses,containerID_list,avg_contextSwitches,avg_contextSwitchesDelta,avg_cpuIdleDelta,avg_cpuIowaitDelta,avg_cpuIrqDelta,avg_cpuKrnDelta,avg_cpuNiceDelta,avg_cpuSoftIrqDelta,cpuType_list,avg_cpuUsrDelta,avg_endTime,avg_frameworkRuntime,avg_frameworkRuntimeDeltas,avg_freeMemory,avg_functionMemory,avg_latency,sum_newcontainer,avg_pageFaults,avg_pageFaultsDelta,avg_roundTripTime,avg_runtime,avg_runtimeOverlap,avg_startTime,avg_tenants[vmID],avg_totalMemory,avg_userRuntime,avg_vmcpusteal,avg_vmcpustealDelta,avg_vmuptime
+,3,['2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38'],112832.33,11959.67,24392.67,1.00,0.00,36.67,0.00,2.33,[' - Model '],24327.33,1642103028959.67,11.67,4.33,2380789.33,2048.00,685.07,0,1135449.00,191667.33,244538.74,243853.67,0.00,1642102785106.00,3.00,3235752.00,243837.67,0.00,0.00,1642093733.00
+Total number of unique vmIDs: 1
+
+Category zAll:
+zAll,uses,containerID_list,avg_contextSwitches,avg_contextSwitchesDelta,avg_cpuIdleDelta,avg_cpuIowaitDelta,avg_cpuIrqDelta,avg_cpuKrnDelta,avg_cpuNiceDelta,avg_cpuSoftIrqDelta,cpuType_list,avg_cpuUsrDelta,avg_endTime,avg_frameworkRuntime,avg_frameworkRuntimeDeltas,avg_freeMemory,avg_functionMemory,avg_latency,sum_newcontainer,avg_pageFaults,avg_pageFaultsDelta,avg_roundTripTime,avg_runtime,avg_runtimeOverlap,avg_startTime,avg_tenants[vmID],avg_totalMemory,avg_userRuntime,vmID_list,avg_vmcpusteal,avg_vmcpustealDelta,avg_vmuptime
+Final Results:,3,['2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38'],112832.33,11959.67,24392.67,1.00,0.00,36.67,0.00,2.33,[' - Model '],24327.33,1642103028959.67,11.67,4.33,2380789.33,2048.00,685.07,0,1135449.00,191667.33,244538.74,243853.67,0.00,1642102785106.00,3.00,3235752.00,243837.67,[''],0.00,0.00,1642093733.00
+Total number of unique zAlls: 1
+
+Category zTenancy[vmID]:
+zTenancy[vmID],uses,containerID_list,avg_contextSwitches,avg_contextSwitchesDelta,avg_cpuIdleDelta,avg_cpuIowaitDelta,avg_cpuIrqDelta,avg_cpuKrnDelta,avg_cpuNiceDelta,avg_cpuSoftIrqDelta,avg_cpuUsrDelta,avg_endTime,avg_frameworkRuntime,avg_frameworkRuntimeDeltas,avg_freeMemory,avg_functionMemory,avg_latency,sum_newcontainer,avg_pageFaults,avg_pageFaultsDelta,avg_roundTripTime,avg_runtime,avg_runtimeOverlap,avg_startTime,avg_tenants[vmID],avg_totalMemory,avg_userRuntime,vmID_list,avg_vmcpusteal,avg_vmcpustealDelta,avg_vmuptime
+ - Model  - 3,3,['2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38'],112832.33,11959.67,24392.67,1.00,0.00,36.67,0.00,2.33,24327.33,1642103028959.67,11.67,4.33,2380789.33,2048.00,685.07,0,1135449.00,191667.33,244538.74,243853.67,0.00,1642102785106.00,3.00,3235752.00,243837.67,[''],0.00,0.00,1642093733.00
+Total number of unique zTenancy[vmID]s: 1
+
+--- Runs of Group zTenancy[vmID] ---
+
+Category zTenancy[vmID] with  - Model  - 3:
+containerID,contextSwitches,contextSwitchesDelta,cpuIdleDelta,cpuIowaitDelta,cpuIrqDelta,cpuKrnDelta,cpuNiceDelta,cpuSoftIrqDelta,cpuUsrDelta,endTime,frameworkRuntime,frameworkRuntimeDeltas,freeMemory,functionMemory,functionName,functionRegion,lambdaName,latency,newcontainer,pageFaults,pageFaultsDelta,payload,roundTripTime,runtime,runtimeOverlap,startTime,tenants[vmID],totalMemory,userRuntime,uuid,vmID,vmcpusteal,vmcpustealDelta,vmuptime,zTenancy[vmID]
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,93498,25357,16028,2,0,78,0,7,15932,1642102768652,11,5,2422144,2048,lambda_function_1,us-east-2,topic-modeling-arm64,682.54,0,807532,414219,{"function_name": "lambda_function_1"},160991.54,160309,0,1642102608343,3,3235752,160293,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733, - Model  - 3
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,120039,2198,20778,0,0,27,0,0,20713,1642102976950,12,4,2361620,2048,lambda_function_2,us-east-2,topic-modeling-arm64,663.9,0,1224890,141732,{"function_name": "lambda_function_2"},208289.9,207626,0,1642102769324,3,3235752,207610,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733, - Model  - 3
+2022/01/13/[$LATEST]b015c6f69f5e4ac39fea765f0de3ef38,124960,8324,36372,1,0,5,0,0,36337,1642103341277,12,4,2358604,2048,lambda_function_3,us-east-2,topic-modeling-arm64,708.77,0,1373925,19051,{"function_name": "lambda_function_3"},364334.77,363626,0,1642102977651,3,3235752,363610,5ae2121f-062f-40ff-b606-74c92918bfe6,,0,0,1642093733, - Model  - 3

@@ -1,0 +1,6 @@
+{
+    "function": "topic-modeling-arm64",
+    "platform": "AWS Lambda",
+    "source": "..",
+    "endpoint": ""
+}

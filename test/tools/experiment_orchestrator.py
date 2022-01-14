@@ -175,7 +175,7 @@ def run_experiment(functions, experiments, outDir):
             print("Setting memory value to: " + str(mem) + "MBs...")
 
             if platform == "AWS Lambda":
-                cmd = ['aws', 'lambda', 'update-function-configuration',
+                cmd = ['/usr/local/bin/aws', 'lambda', 'update-function-configuration',
                     '--function-name', functionName, '--memory-size', str(mem)]
                 proc = subprocess.Popen(
                     cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
