@@ -10,7 +10,7 @@
 
     "runs": 3,
     "threads": 1,
-    "iterations": 2,
+    "iterations": 200,
     "sleepTime": 5,
     "randomSeed": 42,
     "shufflePayload": false,
@@ -36,5 +36,5 @@
 
     "openCSV": false,
     "combineSheets": false,
-    "warmupBuffer": 0
+    "warmupBuffer": 1
 } 

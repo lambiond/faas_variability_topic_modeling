@@ -54,7 +54,7 @@ callservice() {
     ####################################
     # Uncomment for AWS Lambda CLI function invocation with $function variable
     ####################################
-    output=`aws lambda invoke --invocation-type RequestResponse --function-name $function --region us-east-1 --payload $json /dev/stdout | head -n 1 | head -c -2 ; echo`
+    output=`/usr/local/bin/aws lambda invoke --invocation-type RequestResponse --function-name $function --region us-east-1 --payload $json /dev/stdout | head -n 1 | head -c -2 ; echo`
     
     ####################################
     # Uncomment for Google Cloud CLI function invocation with $function variable
