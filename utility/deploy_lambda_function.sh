@@ -21,7 +21,7 @@ create_role() {
 			--policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
 	fi
 	ROLE=$(aws iam get-role --role-name "$FUNCTION-$REGION" | awk '/Arn/ {print substr($2, 2, length($2)-3)}')
-	sleep 3
+	sleep 10
 }
 
 create_lambda_function() {
@@ -85,9 +85,16 @@ elif [ -n "$3" ]; then
 fi
 
 # Create Lambda function only if it does not exist
-aws lambda get-function --function-name $FUNCTION --region $REGION &> /dev/null \
-	&& exit
-
-# Deploy Lambda
-create_role
-create_lambda_function 900 2048
+if aws lambda get-function --function-name $FUNCTION --region $REGION &> /dev/null; then
+	[ "$ARCH" == "x86_64" ] && arch='amd64' || arch=$ARCH
+	image=$(docker images | awk "/$REGION.*topic-modeling.*$ARCH/"'{print $1":"$2}')
+	if [ -z "$image" ]; then
+		echo "ERROR: no image found for region and/or arch"
+		exit 1
+	fi
+	aws lambda update-function-code --function-name $FUNCTION --image-uri $image --region $REGION
+else
+	# Deploy Lambda
+	create_role
+	create_lambda_function 900 2048
+fi

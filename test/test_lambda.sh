@@ -1,63 +1,59 @@
 #!/bin/bash
 
-set -o pipefail
-
+# Change to the directory containing the test script
 cd $(dirname $0)
-
-# Install jq if not present to make json easier to read
-#if ! which jq > /dev/null; then
-#	sudo apt update && sudo apt install -y jq
-#fi
-
 # Allow users to set the arch to test
 [ -z "$1" ] && ARCH=`uname -m` || ARCH=$1
-
 # Test different regions
-[ -z "$2" ] && REGION='us-east-2' || REGION=$2
-
+[ -z "$2" ] && REGION=`awk '/region/ {print $NF}' /home/$USER/.aws/config` || REGION=$2
 # Iterations in pipeline
 [ -z "$3" ] && ITERATIONS=1 || ITERATIONS=$3
+# Retry after failures
+[ -z "$4" ] && RETRY=5 || RETRY=$4
+# Delay between function execution
+[ -z "$5" ] && DELAY=1 || DELAY=$5
+# Backoff rate
+[ -z "$6" ] && BACKOFF=2 || BACKOFF=$6
 
-# function_name = $1
-# lambda_function = $2
-# filename_postfix = $3
-# directory_name = $4
-# retry = $5
-# sleep = $6
+# lambda_name = $1
+# function_name = $2
+# directory_name = $3
+# retry = $4
+# delay = $5
 execute_lambda_function() {
+	printf "\n\e[36mExecuting $1 ($2)...\n---\e[0m\n"
+	sleep $5
 	local mystart=`date`
-	local json="{\"function_name\":\"$1\", \"startWallClock\":\"$mystart\"}"
+	local json="{\"function_name\":\"$2\", \"startWallClock\":\"$mystart\"}"
 	# Set timeout to 10 minutes
-	sleep $6
-	echo aws lambda invoke --cli-read-timeout 900 --invocation-type RequestResponse --function-name $2 --region $REGION --payload "$json" /dev/stdout
-	local output=$(aws lambda invoke \
+	local output=$(/usr/local/bin/aws lambda invoke \
 		--cli-read-timeout 900 \
 		--invocation-type RequestResponse \
-		--function-name $2 \
+		--function-name $1 \
 		--region $REGION \
 		--payload "$json" /dev/stdout)
 	local ret=$?
 	if [ $ret -ne 0 ] || [ -z "$output" ] || echo "$output" | grep -q 'errorType'; then
 		echo "ERROR: something bad happened!"
-		if [[ -n "$5" && $5 -gt 0 ]]; then
-			execute_lambda_function "$1" "$2" "$3" "$4" $((${5}-1)) $((${6}*2))
+		if [[ -n "$4" && $4 -gt 0 ]]; then
+			execute_lambda_function "$1" "$2" "$3" $(($4-1)) $(($5*$BACKOFF))
+			ret=$?
 		else
 			exit 1
 		fi
 	else
 		mystart=$(date -d "$mystart" "+%Y%m%d%H%M%S")
-		echo $output | awk -F'}' '{print $1"}"}' | tee $4/$mystart-$3.txt
+		echo $output | awk -F'}' '{print $1"}"}' | tee $3/$1-$2-$mystart.json
 	fi
 	return $ret
 }
 
-i=0
-while [ $ITERATIONS -gt 0 ]; do
-    mydir="$REGION/$ARCH/workflow$i/"
-    mkdir -p $mydir
-    let i++
-	let ITERATIONS--
-    execute_lambda_function "lambda_function_1" "topic-modeling-$ARCH" "$ARCH-function1" "$mydir" 5 1 && \
-    execute_lambda_function "lambda_function_2" "topic-modeling-$ARCH" "$ARCH-function2" "$mydir" 5 1 && \
-    execute_lambda_function "lambda_function_3" "topic-modeling-$ARCH" "$ARCH-function3" "$mydir" 5 1
+# Execute workflow pipeline
+for ((i=0; i<$ITERATIONS; i++)); do
+	mydir="$REGION/$ARCH/$(date -u "+%Y%m%d")/workflow$i/"
+	mkdir -p $mydir && \
+	execute_lambda_function "topic-modeling-$ARCH" "lambda_function_1" "$mydir" $RETRY $DELAY && \
+	execute_lambda_function "topic-modeling-$ARCH" "lambda_function_2" "$mydir" $RETRY $DELAY && \
+	execute_lambda_function "topic-modeling-$ARCH" "lambda_function_3" "$mydir" $RETRY $DELAY && \
+	/usr/local/bin/aws s3 rm "s3://$(echo topic-modeling-$REGION-$ARCH | tr '_' '-')" --recursive 
 done
