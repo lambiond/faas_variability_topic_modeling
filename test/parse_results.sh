@@ -45,12 +45,12 @@ for region in $regions; do
 	for cpu in $cpus; do
 		pushd $cpu > /dev/null
 		dates=$(find -maxdepth 1 -type d ! -name '.' -exec basename {} \;)
-		for d in $dates; do
-			pushd $d > /dev/null
-			# parse workflows dynamically, we do not know how many we have
-			workflows=$(find -maxdepth 1 -type d ! -name '.' | grep -o '[0-9]\+' | sort -n)
-			for workflow in $workflows; do
-				pushd workflow$workflow > /dev/null
+		for day in $dates; do
+			pushd $day > /dev/null
+			# parse iterations dynamically, we do not know how many we have
+			iterations=$(find -maxdepth 1 -type d ! -name '.' | grep -o '[0-9]\+' | sort -n)
+			for i in $iterations; do
+				pushd iteration$i > /dev/null
 				get_stats $region $cpu
 				popd > /dev/null
 			done
@@ -60,4 +60,4 @@ for region in $regions; do
 	done
 	popd > /dev/null
 done
-echo "Total workflows parsed: $total, Error in records: $errcnt ($((errcnt*100/total))%)"
+echo "Total iterations parsed: $total, Error in records: $errcnt ($((errcnt*100/total))%)"
