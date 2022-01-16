@@ -45,7 +45,7 @@ if ! docker buildx ls | grep -q '^mybuilder'; then
 	docker buildx create --name mybuilder --driver-opt network=host --use
 	docker buildx inspect --bootstrap
 fi
-if ! docker images $IMAGE:$ARCH | grep -q "^$IMAGE:$ARCH"; then
+if [ -z "$(docker images $IMAGE:$ARCH -q)" ]; then
 	docker buildx build -t $IMAGE:$ARCH --platform linux/$ARCH --load .
 fi
 docker tag $IMAGE:$ARCH $ECR/$IMAGE:$ARCH

@@ -32,12 +32,6 @@ model_files=['/tmp/lda.model',
              '/tmp/lda.model.expElogbeta.npy',
              '/tmp/lda.model.id2word',
              '/tmp/lda.model.state']
-cleanup_files=['lda.model',
-               'lda.model.expElogbeta.npy',
-               'lda.model.id2word',
-               'lda.model.state',
-               'dictionary.p',
-               'corpus_tfidf.p'
 
 def lambda_function_1(training_data='/tmp/news_train.csv',
                       bucket_name_in=f'topic-modeling-{region}',
@@ -118,11 +112,7 @@ def lambda_function_3(test_data='/tmp/news_test_smaller.csv',
     # =============================================================================
     results_file = '/tmp/results.csv'
     df_query.to_csv(results_file)
-    # We could check the checksum and return instead of storing
-    #s3.s3_upload_file(results_file, bucket_name_out)
-    # Cleanup all application files in S3 bucket
-    for f in cleanup_files:
-        s3.s3_delete(bucket_name_in[1], f)
+    s3.s3_upload_file(results_file, bucket_name_out)
 
 
 # =============================================================================
