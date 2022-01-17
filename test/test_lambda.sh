@@ -76,10 +76,10 @@ empty_s3_bucket() {
 }
 
 sns_notify() {
-	local id=`aws sts get-caller-identity | sed -n 's|.*Account.*"\([0-9]\+\)".*|\1|p'`
+	local id=`/usr/local/bin/aws sts get-caller-identity | sed -n 's|.*Account.*"\([0-9]\+\)".*|\1|p'`
 	local topic_arn="arn:aws:sns:$REGION:$id:topic-modeling"
 	# If topic-modeling exists in SNS then send out a message
-	if aws sns get-topic-attributes --topic-arn "$topic_arn" &> /dev/null; then
+	if /usr/local/bin/aws sns get-topic-attributes --topic-arn "$topic_arn" &> /dev/null; then
 		local message="$1"
 		./sns_notify.sh "$topic_arn" "$message"
 	fi
