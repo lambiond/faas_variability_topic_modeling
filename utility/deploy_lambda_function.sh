@@ -96,5 +96,5 @@ if aws lambda get-function --function-name $FUNCTION --region $REGION &> /dev/nu
 else
 	# Deploy Lambda
 	create_role
-	create_lambda_function 900 2048
+	create_lambda_function 600 2560
 fi

@@ -21,9 +21,9 @@ esac
 # Iterations in pipeline
 [ -z "$3" ] && ITERATIONS=1 || ITERATIONS=$3
 # Retry after failures
-[ -z "$4" ] && RETRY=5 || RETRY=$4
+[ -z "$4" ] && RETRY=6 || RETRY=$4
 # Delay between function execution
-[ -z "$5" ] && DELAY=1 || DELAY=$5
+[ -z "$5" ] && DELAY=2 || DELAY=$5
 # Backoff rate
 [ -z "$6" ] && BACKOFF=2 || BACKOFF=$6
 
