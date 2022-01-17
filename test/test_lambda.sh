@@ -39,7 +39,7 @@ execute_lambda_function() {
 	local json="{\"function_name\":\"$2\", \"startWallClock\":\"$mystart\"}"
 	# Set timeout to 10 minutes
 	local output=$(/usr/local/bin/aws lambda invoke \
-		--cli-read-timeout 900 \
+		--cli-read-timeout 600 \
 		--invocation-type RequestResponse \
 		--function-name $1 \
 		--region $REGION \
