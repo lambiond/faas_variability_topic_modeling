@@ -51,6 +51,7 @@ execute_lambda_function() {
 			execute_lambda_function "$1" "$2" "$3" $(($4-1)) $(($5*$BACKOFF))
 			ret=$?
 		else
+			sns_notify "Testing topic-modeling-$ARCH ($REGION) encountered a failure in iteration $i, exiting test"
 			exit 1
 		fi
 	else
@@ -74,6 +75,16 @@ empty_s3_bucket() {
 	/usr/local/bin/aws s3 rm "$bucket" --recursive
 }
 
+sns_notify() {
+	local id=`aws sts get-caller-identity | sed -n 's|.*Account.*"\([0-9]\+\)".*|\1|p'`
+	local topic_arn="arn:aws:sns:$REGION:$id:topic-modeling"
+	# If topic-modeling exists in SNS then send out a message
+	if aws sns get-topic-attributes --topic-arn "$topic_arn" &> /dev/null; then
+		local message="$1"
+		./sns_notify.sh "$topic_arn" "$message"
+	fi
+}
+
 # Execute pipeline iteration
 start_date=$(date -u "+%Y%m%d")
 for ((i=0; i<$ITERATIONS; i++)); do
@@ -84,3 +95,4 @@ for ((i=0; i<$ITERATIONS; i++)); do
 	execute_lambda_function "topic-modeling-$ARCH" "lambda_function_3" "$mydir" $RETRY $DELAY && \
 	empty_s3_bucket
 done
+sns_notify "Testing topic-modeling-$ARCH ($REGION) complete"
