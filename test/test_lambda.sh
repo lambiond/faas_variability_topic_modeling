@@ -88,6 +88,7 @@ sns_notify() {
 # Execute pipeline iteration
 start_date=$(date -u "+%Y%m%d")
 for ((i=0; i<$ITERATIONS; i++)); do
+	printf "Executing iteration #$i\n---\n"
 	mydir="$REGION/$ARCH/$start_date/iteration$i/"
 	mkdir -p $mydir && \
 	execute_lambda_function "topic-modeling-$ARCH" "lambda_function_1" "$mydir" $RETRY $DELAY && \
