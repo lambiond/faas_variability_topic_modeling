@@ -2,35 +2,45 @@
 
 cd `dirname $0`
 
+# keep track of the # of iterations parsed
+ITERATIONS=0
+# keep track of number of errors encountered in parsed iterations
+ERRCNT=0
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 
 get_runtime() {
-	echo $(jq -r '.runtime' < $1)
+	[ -f "$1" ] && echo $(jq -r '.runtime' < $1) || let ERRCNT++
 }
 
 check_state() {
-	return $(jq -r '.newcontainer' < $1)
+	local ret=$(jq -r '.newcontainer' < $1)
+	if [ $ret -ne 0 ]; then
+		echo "Error in $1, container not warm"
+		let ERRCNT++
+	fi
+	return $ret
 }
 
 get_stats() {
-	let total++
-	logstarttime=$(ls *function_1* | sed -r 's|.*-(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).json|\1-\2-\3 \4:\5:\6|')
-	runtime1=$(get_runtime *function_1*)
-	runtime2=$(get_runtime *function_2*)
-	runtime3=$(get_runtime *function_3*)
-	# Check warm/cold state
-	if ! check_state *function_1* ||
-		! check_state *function_2* ||
-		! check_state *function_3*; then
-		let errcnt++
-	elif [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
-		# one of the runtimes is empty
-		let errcnt++
+	let ITERATIONS++
+	local logstarttime=$(ls *function_1* | sed -r 's|.*-(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).json|\1-\2-\3 \4:\5:\6|')
+	local runtime1=$(get_runtime *function_1*)
+	local runtime2=$(get_runtime *function_2*)
+	local runtime3=$(get_runtime *function_3*)
+	# Check if any of the function runtimes are empty
+	if [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
+		echo "ERROR: One or more of the runtimes is empty"
+		return 1
 	else
-		totalruntime=$(($runtime1+$runtime2+$runtime3))
+		local totalruntime=$(($runtime1+$runtime2+$runtime3))
 		echo "$1,$2,$logstarttime,$runtime1,$runtime2,$runtime3,$totalruntime" | tee -a $RESULTS
 	fi
+	# Check warm/cold state
+	local f
+	for f in *; do
+		check_state $f
+	done
 }
 
 # initialize results.csv file
@@ -60,4 +70,4 @@ for region in $regions; do
 	done
 	popd > /dev/null
 done
-echo "Total iterations parsed: $total, Error in records: $errcnt ($((errcnt*100/total))%)"
+echo "Total iterations parsed: $ITERATIONS, Errors in records: $ERRCNT"
