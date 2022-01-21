@@ -9,16 +9,8 @@ ERRCNT=0
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 
-get_runtime() {
-	[ -f "$1" ] && echo $(jq -r '.runtime' < $1) || let ERRCNT++
-}
-
-get_cpumodel() {
-	[ -f "$1" ] && echo $(jq -r '.cpuModel' < $1) || let ERRCNT++
-}
-
-get_vmcpustealDelta() {
-	[ -f "$1" ] && echo $(jq -r '.vmcpustealDelta' < $1) || let ERRCNT++
+parse_json() {
+	[ -f "$1" ] && echo $(eval jq "$2" < $1) || let ERRCNT++
 }
 
 check_state() {
@@ -33,28 +25,24 @@ check_state() {
 get_stats() {
 	let ITERATIONS++
 	local logstarttime=$(ls *function_1* | sed -r 's|.*-(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).json|\1-\2-\3 \4:\5:\6|')
-	local runtime1=$(get_runtime *function_1*)
-	local runtime2=$(get_runtime *function_2*)
-	local runtime3=$(get_runtime *function_3*)
-	local cpumodel1=$(get_cpumodel *function_1*)
-	local cpumodel2=$(get_cpumodel *function_2*)
-	local cpumodel3=$(get_cpumodel *function_3*)
-	local vmcpustealDelta1=$(get_vmcpustealDelta *function_1*)
-	local vmcpustealDelta2=$(get_vmcpustealDelta *function_2*)
-	local vmcpustealDelta3=$(get_vmcpustealDelta *function_3*)
+	local fields="\(.runtime\),\(.cpuModel\),\(.vmcpustealDelta\)"
+	local function1=($(parse_json *function_1* "$fields"))
+	local function2=($(parse_json *function_2* "$fields"))
+	local function3=($(parse_json *function_3* "$fields"))
 	# Check if any of the function runtimes are empty
-	if [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
+	if [[ -z "${function1[0]}" || -z "${function2[0]}" || -z "${function3[0]}" ]]; then
 		echo "ERROR: One or more of the runtimes is empty"
 		return 1
 	fi
-	if [[ "$cpumodel1" != "$cpumodel2" || "$cpumodel1" != "$cpumodel3" ]]; then
+	if [[ "${function1[1]}" != "${function2[1]}" || "${function1[1]}" != "${function3[1]}" ]]; then
 		echo "ERROR: One or more CPU model is not consistent"
 		return 1
 	fi
-	totalvmcpustealDelta=$((vmcpustealDelta1+vmcpustealDelta2+vmcpustealDelta3))
-	local totalruntime=$(($runtime1+$runtime2+$runtime3))
-	vmcpustealDelta_div_min=$(bc -l <<< "$totalvmcpustealDelta*60000/$totalruntime")
-	echo "$1,$2,$logstarttime,$cpumodel1,$totalruntime,$totalvmcpustealDelta,$vmcpustealDelta_div_min" | tee -a $RESULTS
+	local cpumodel=$(echo ${function1[1]} | sed -e 's/^"\(.*\)"$/\1/')
+	local totalruntime=$((${function1[0]}+${function2[0]}+${function3[0]}))
+	local totalvmcpustealDelta=$((${function1[2]}+${function2[2]}+${function3[2]}))
+	local vmcpustealDelta_div_min=$(bc -l <<< "$totalvmcpustealDelta*60000/$totalruntime")
+	echo "$1,$2,$logstarttime,$cpumodel,$totalruntime,$totalvmcpustealDelta,$vmcpustealDelta_div_min" | tee -a $RESULTS
 	# Check warm/cold state
 	local f
 	for f in *; do
