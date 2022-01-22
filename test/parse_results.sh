@@ -6,6 +6,8 @@ cd `dirname $0`
 ITERATIONS=0
 # keep track of number of errors encountered in parsed iterations
 ERRCNT=0
+# fields to parse in json
+FIELDS="\(.runtime\),\(.cpuModel\),\(.vmcpustealDelta\)"
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 
@@ -16,7 +18,6 @@ parse_json() {
 check_state() {
 	local ret=$(jq -r '.newcontainer' < $1)
 	if [ $ret -ne 0 ]; then
-		echo "Error in $1, container not warm"
 		let ERRCNT++
 	fi
 	return $ret
@@ -25,10 +26,9 @@ check_state() {
 get_stats() {
 	let ITERATIONS++
 	local logstarttime=$(ls *function_1* | sed -r 's|.*-(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).json|\1-\2-\3 \4:\5:\6|')
-	local fields="\(.runtime\),\(.cpuModel\),\(.vmcpustealDelta\)"
-	local function1=($(parse_json *function_1* "$fields"))
-	local function2=($(parse_json *function_2* "$fields"))
-	local function3=($(parse_json *function_3* "$fields"))
+	local function1=($(parse_json *function_1* "$FIELDS"))
+	local function2=($(parse_json *function_2* "$FIELDS"))
+	local function3=($(parse_json *function_3* "$FIELDS"))
 	# Check if any of the function runtimes are empty
 	if [[ -z "${function1[0]}" || -z "${function2[0]}" || -z "${function3[0]}" ]]; then
 		echo "ERROR: One or more of the runtimes is empty"
@@ -41,17 +41,27 @@ get_stats() {
 	local cpumodel=$(echo ${function1[1]} | sed -e 's/^"\(.*\)"$/\1/')
 	local totalruntime=$((${function1[0]}+${function2[0]}+${function3[0]}))
 	local totalvmcpustealDelta=$((${function1[2]}+${function2[2]}+${function3[2]}))
+	local vmcpustealDelta_div_min_fun1=$(bc -l <<< "${function1[2]}*60000/${function1[0]}")
+	local vmcpustealDelta_div_min_fun2=$(bc -l <<< "${function2[2]}*60000/${function2[0]}")
+	local vmcpustealDelta_div_min_fun3=$(bc -l <<< "${function3[2]}*60000/${function3[0]}")
 	local vmcpustealDelta_div_min=$(bc -l <<< "$totalvmcpustealDelta*60000/$totalruntime")
-	echo "$1,$2,$logstarttime,$cpumodel,$totalruntime,$totalvmcpustealDelta,$vmcpustealDelta_div_min" | tee -a $RESULTS
+	local comment
 	# Check warm/cold state
 	local f
 	for f in *; do
-		check_state $f
+		if ! check_state $f; then
+			if [ -n "$comment" ]; then
+				comment="$comment; $f container not warm"
+			else
+				comment="$f container not warm"
+			fi
+		fi
 	done
+	echo "$1,$2,$logstarttime,$cpumodel,${function1[0]},${function2[0]},${function3[0]},$totalruntime,$vmcpustealDelta_div_min_fun1,$vmcpustealDelta_div_min_fun2,$vmcpustealDelta_div_min_fun3,$totalvmcpustealDelta,$vmcpustealDelta_div_min,$comment" | tee -a $RESULTS
 }
 
 # initialize results.csv file
-echo 'region,arch,start time,cpu model,total runtime (ms),total vmcpustealDelta,total vmcpustealDelta/min' | tee $RESULTS
+echo 'region,arch,start time,cpu model,runtime function1 (ms),runtime function2 (ms),runtime function3 (ms),vmcpustealDelta/min function1,vmcpustealDelta/min function2,vmcpustealDelta/min function3,total runtime (ms),total vmcpustealDelta,total vmcpustealDelta/min,comment' | tee $RESULTS
 
 # Parse regions dynamically in case we want to include more
 regions="us-east-2 ap-northeast-1 eu-central-1"
