@@ -12,7 +12,7 @@ FIELDS="\(.runtime\),\(.cpuModel\),\(.vmcpustealDelta\)"
 RESULTS=$PWD/results.csv
 
 parse_json() {
-	[ -f "$1" ] && echo $(eval jq "$2" < $1) || let ERRCNT++
+	[ -f "$1" ] && eval jq "$2" < $1 || let ERRCNT++
 }
 
 check_state() {
@@ -57,7 +57,7 @@ get_stats() {
 			fi
 		fi
 	done
-	echo "$1,$2,$logstarttime,$cpumodel,${function1[0]},${function2[0]},${function3[0]},$totalruntime,$vmcpustealDelta_div_min_fun1,$vmcpustealDelta_div_min_fun2,$vmcpustealDelta_div_min_fun3,$totalvmcpustealDelta,$vmcpustealDelta_div_min,$comment" | tee -a $RESULTS
+	echo "$1,$2,$logstarttime,$cpumodel,${function1[0]},${function2[0]},${function3[0]},$vmcpustealDelta_div_min_fun1,$vmcpustealDelta_div_min_fun2,$vmcpustealDelta_div_min_fun3,$totalruntime,$totalvmcpustealDelta,$vmcpustealDelta_div_min,$comment" | tee -a $RESULTS
 }
 
 # initialize results.csv file
