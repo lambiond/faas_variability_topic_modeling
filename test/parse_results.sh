@@ -64,7 +64,7 @@ get_stats() {
 echo 'region,arch,start time,cpu model,runtime function1 (ms),runtime function2 (ms),runtime function3 (ms),vmcpustealDelta/min function1,vmcpustealDelta/min function2,vmcpustealDelta/min function3,total runtime (ms),total vmcpustealDelta,total vmcpustealDelta/min,comment' | tee $RESULTS
 
 # Parse regions dynamically in case we want to include more
-regions="us-east-2 ap-northeast-1 eu-central-1"
+regions="us-east-2 us-west-2 ap-northeast-1 eu-central-1"
 for region in $regions; do
 	pushd $region > /dev/null
 	# Parse the arch dynamically
