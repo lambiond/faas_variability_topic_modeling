@@ -6,25 +6,18 @@ cd `dirname $0`
 ITERATIONS=0
 # keep track of number of errors encountered in parsed iterations
 ERRCNT=0
+# fields to parse in json
+FIELDS="\(.runtime\),\(.cpuModel\),\(.vmcpustealDelta\)"
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 
-get_runtime() {
-	[ -f "$1" ] && echo $(jq -r '.runtime' < $1) || let ERRCNT++
-}
-
-get_cpumodel() {
-	[ -f "$1" ] && echo $(jq -r '.cpuModel' < $1) || let ERRCNT++
-}
-
-get_vmcpustealDelta() {
-	[ -f "$1" ] && echo $(jq -r '.vmcpustealDelta' < $1) || let ERRCNT++
+parse_json() {
+	[ -f "$1" ] && echo $(eval jq "$2" < $1) || let ERRCNT++
 }
 
 check_state() {
 	local ret=$(jq -r '.newcontainer' < $1)
 	if [ $ret -ne 0 ]; then
-		echo "Error in $1, container not warm"
 		let ERRCNT++
 	fi
 	return $ret
@@ -33,37 +26,42 @@ check_state() {
 get_stats() {
 	let ITERATIONS++
 	local logstarttime=$(ls *function_1* | sed -r 's|.*-(.{4})(.{2})(.{2})(.{2})(.{2})(.{2}).json|\1-\2-\3 \4:\5:\6|')
-	local runtime1=$(get_runtime *function_1*)
-	local runtime2=$(get_runtime *function_2*)
-	local runtime3=$(get_runtime *function_3*)
-	local cpumodel1=$(get_cpumodel *function_1*)
-	local cpumodel2=$(get_cpumodel *function_2*)
-	local cpumodel3=$(get_cpumodel *function_3*)
-	local vmcpustealDelta1=$(get_vmcpustealDelta *function_1*)
-	local vmcpustealDelta2=$(get_vmcpustealDelta *function_2*)
-	local vmcpustealDelta3=$(get_vmcpustealDelta *function_3*)
+	local function1=($(parse_json *function_1* "$FIELDS"))
+	local function2=($(parse_json *function_2* "$FIELDS"))
+	local function3=($(parse_json *function_3* "$FIELDS"))
 	# Check if any of the function runtimes are empty
-	if [[ -z "$runtime1" || -z "$runtime2" || -z "$runtime3" ]]; then
+	if [[ -z "${function1[0]}" || -z "${function2[0]}" || -z "${function3[0]}" ]]; then
 		echo "ERROR: One or more of the runtimes is empty"
 		return 1
 	fi
-	if [[ "$cpumodel1" != "$cpumodel2" || "$cpumodel1" != "$cpumodel3" ]]; then
+	if [[ "${function1[1]}" != "${function2[1]}" || "${function1[1]}" != "${function3[1]}" ]]; then
 		echo "ERROR: One or more CPU model is not consistent"
 		return 1
 	fi
-	totalvmcpustealDelta=$((vmcpustealDelta1+vmcpustealDelta2+vmcpustealDelta3))
-	local totalruntime=$(($runtime1+$runtime2+$runtime3))
-	vmcpustealDelta_div_min=$(bc -l <<< "$totalvmcpustealDelta*60000/$totalruntime")
-	echo "$1,$2,$logstarttime,$cpumodel1,$totalruntime,$totalvmcpustealDelta,$vmcpustealDelta_div_min" | tee -a $RESULTS
+	local cpumodel=$(echo ${function1[1]} | sed -e 's/^"\(.*\)"$/\1/')
+	local totalruntime=$((${function1[0]}+${function2[0]}+${function3[0]}))
+	local totalvmcpustealDelta=$((${function1[2]}+${function2[2]}+${function3[2]}))
+	local vmcpustealDelta_div_min_fun1=$(bc -l <<< "${function1[2]}*60000/${function1[0]}")
+	local vmcpustealDelta_div_min_fun2=$(bc -l <<< "${function2[2]}*60000/${function2[0]}")
+	local vmcpustealDelta_div_min_fun3=$(bc -l <<< "${function3[2]}*60000/${function3[0]}")
+	local vmcpustealDelta_div_min=$(bc -l <<< "$totalvmcpustealDelta*60000/$totalruntime")
+	local comment
 	# Check warm/cold state
 	local f
 	for f in *; do
-		check_state $f
+		if ! check_state $f; then
+			if [ -n "$comment" ]; then
+				comment="$comment; $f container not warm"
+			else
+				comment="$f container not warm"
+			fi
+		fi
 	done
+	echo "$1,$2,$logstarttime,$cpumodel,${function1[0]},${function2[0]},${function3[0]},$totalruntime,$vmcpustealDelta_div_min_fun1,$vmcpustealDelta_div_min_fun2,$vmcpustealDelta_div_min_fun3,$totalvmcpustealDelta,$vmcpustealDelta_div_min,$comment" | tee -a $RESULTS
 }
 
 # initialize results.csv file
-echo 'region,arch,start time,cpu model,total runtime (ms),total vmcpustealDelta,total vmcpustealDelta/min' | tee $RESULTS
+echo 'region,arch,start time,cpu model,runtime function1 (ms),runtime function2 (ms),runtime function3 (ms),vmcpustealDelta/min function1,vmcpustealDelta/min function2,vmcpustealDelta/min function3,total runtime (ms),total vmcpustealDelta,total vmcpustealDelta/min,comment' | tee $RESULTS
 
 # Parse regions dynamically in case we want to include more
 regions="us-east-2 ap-northeast-1 eu-central-1"
