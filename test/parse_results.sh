@@ -7,7 +7,7 @@ ITERATIONS=0
 # keep track of number of errors encountered in parsed iterations
 ERRCNT=0
 # fields to parse in json
-FIELDS='(.runtime),(.cpuModel),(.vmcpustealDelta),(.pageFaultsDelta),(.contextSwitchesDelta),(.totalMemory),(.freeMemory)'
+FIELDS='(.runtime),(.cpuModel),(.vmcpustealDelta),(.pageFaultsDelta),(.contextSwitchesDelta)'
 # parse results into .csv format to view in spreadsheet software
 RESULTS=$PWD/results.csv
 # date to end parsing (e.g. 2022-01-20)
@@ -65,10 +65,6 @@ get_stats() {
 	output+="$(bc -l <<< "${function1[4]}*60000/${function1[0]}"),"
 	output+="$(bc -l <<< "${function2[4]}*60000/${function2[0]}"),"
 	output+="$(bc -l <<< "${function3[4]}*60000/${function3[0]}"),"
-	# Get function level memoryUsage = totalMemory-freeMemory
-	output+="$(bc -l <<< "${function1[5]}-${function1[6]}"),"
-	output+="$(bc -l <<< "${function2[5]}-${function2[6]}"),"
-	output+="$(bc -l <<< "${function3[5]}-${function3[6]}"),"
 	# Calculate overall pipeline results
 	local total_runtime=$((${function1[0]}+${function2[0]}+${function3[0]}))
 	local total_vmcpustealDelta=$((${function1[2]}+${function2[2]}+${function3[2]}))
@@ -93,7 +89,6 @@ get_stats() {
 echo "region,arch,start time,cpu model,\
 function1 runtime (ms),function2 runtime (ms),function3 runtime (ms),\
 function1 vmcpustealDelta/min,function2 vmcpustealDelta/min,function3 vmcpustealDelta/min,\
-function1 memoryUsage,function2 memoryUsage,function3 memoryUsage,\
 function1 pageFaultsDelta/min,function2 pageFaultsDelta/min,function3 pageFaultsDelta/min,\
 function1 contextSwitchesDelta/min,function2 contextSwitchesDelta/min,function3 contextSwitchesDelta/min,\
 total runtime (ms),total vmcpustealDelta,total vmcpustealDelta/min,comment" | tee $RESULTS
