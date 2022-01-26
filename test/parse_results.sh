@@ -31,9 +31,8 @@ get_stats() {
 	# Check if we have reached the end date set by user
 	if [ -n "$END_DATE" ]; then
 		echo $logstarttime | grep -q $END_DATE && return 2
-	else
-		output+="$logstarttime,"
 	fi
+	output+="${logstarttime},"
 	# Parse all function results
 	local function1=($(parse_json *function_1* "$FIELDS"))
 	local function2=($(parse_json *function_2* "$FIELDS"))
