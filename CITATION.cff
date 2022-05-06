@@ -1,0 +1,19 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: faas_variability_topic_modeling
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Robert
+    family-names: Schmitz
+    email: rgs1@uw.edu
+    orcid: 'https://orcid.org/0000-0002-5279-8793'
+    name-suffix: III
+  - given-names: Danielle
+    family-names: Lambion
+    email: dlambion@uw.edu
+    orcid: 'https://orcid.org/0000-0002-4507-5490'
