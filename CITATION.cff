@@ -2,7 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: faas_variability_topic_modeling
+title: FaaS performance variability study using topic-modeling
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -18,3 +18,5 @@ authors:
     email: dlambion@uw.edu
     orcid: 'https://orcid.org/0000-0002-4507-5490'
 url: "https://github.com/lambiond/faas_variability_topic_modeling"
+version: 1.0.0
+date-released: 2022-01-13
